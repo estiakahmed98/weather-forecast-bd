@@ -1162,16 +1162,16 @@ export function FirstCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
                         {/* Temperature Values */}
                         <TabsContent value="temperature" className="mt-4">
                           <Tabs defaultValue="as-read" className="w-full">
-                            <TabsList className="grid w-full grid-cols-2 bg-blue-50/50 rounded-lg">
+                            <TabsList className="grid w-full grid-cols-2 gap-5 bg-blue-50/50 rounded-lg">
                               <TabsTrigger
                                 value="as-read"
-                                className="data-[state=active]:bg-blue-200 data-[state=active]:text-blue-800"
+                                className="data-[state=active]:bg-blue-200 data-[state=active]:text-blue-800 border border-blue-300"
                               >
                                 As Read
                               </TabsTrigger>
                               <TabsTrigger
                                 value="corrected"
-                                className="data-[state=active]:bg-blue-200 data-[state=active]:text-blue-800"
+                                className="data-[state=active]:bg-blue-200 data-[state=active]:text-blue-800 border border-blue-300"
                               >
                                 Corrected
                               </TabsTrigger>
