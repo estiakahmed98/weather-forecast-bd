@@ -11,15 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
-  CloudSun,
-  Filter,
-  Loader2,
-  AlertTriangle,
-} from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, CloudSun, Filter, Loader2, AlertTriangle } from 'lucide-react';
 import { format, parseISO, differenceInDays, isValid } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { useSession } from "@/lib/auth-client";
@@ -39,11 +31,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { utcToHour } from "@/lib/utils";
-import { Download } from "lucide-react";
+import { Download } from 'lucide-react';
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { hygrometricTable } from "@/data/hygrometric-table";
 import { stationDataMap } from "@/data/station-data-map";
+import { cn } from "@/lib/utils";
 
 // Enhanced validation schema with strict numeric validation
 const meteorologicalValidationSchema = Yup.object().shape({
@@ -1547,38 +1540,6 @@ const FirstCardTable = forwardRef(
                   </tbody>
                 </table>
               </div>
-
-              {/* <div className="mt-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-sky-500" />
-                  <span className="text-sm text-slate-600">
-                    Date Range:{" "}
-                    <div className="text-center text-lg font-semibold text-slate-600">
-                      {`${format(parseISO(startDate), "MMM d")} - ${format(parseISO(endDate), "MMM d, yyyy")}`}
-                    </div>
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge
-                    variant="outline"
-                    className="bg-sky-100 text-sky-800 hover:bg-sky-200"
-                  >
-                    {data.reduce(
-                      (count, item) => count + item.MeteorologicalEntry.length,
-                      0
-                    )}{" "}
-                    record(s)
-                  </Badge>
-                  {stationFilter !== "all" && (
-                    <Badge
-                      variant="outline"
-                      className="bg-blue-100 text-blue-800 hover:bg-blue-200"
-                    >
-                      Station: {stationFilter}
-                    </Badge>
-                  )}
-                </div>
-              </div> */}
             </div>
           </div>
 
@@ -1825,12 +1786,6 @@ const FirstCardTable = forwardRef(
                               readOnly: false,
                             },
                             {
-                              id: "squallTime",
-                              label: "Squall Time",
-                              bg: "bg-indigo-50",
-                              readOnly: false,
-                            },
-                            {
                               id: "horizontalVisibility",
                               label: "Horizontal Visibility (km)",
                               bg: "bg-blue-50",
@@ -1903,6 +1858,73 @@ const FirstCardTable = forwardRef(
                               />
                             </div>
                           ))}
+
+                          {/* Squall Time Dropdown */}
+                          <div className="space-y-1 p-3 rounded-lg bg-amber-50 border border-white shadow-sm">
+                            <Label
+                              htmlFor="squallTime"
+                              className="text-sm font-medium text-gray-700"
+                            >
+                              Squall Time (qt)
+                            </Label>
+                            <Field name="squallTime">
+                              {({ field, form }: any) => (
+                                <select
+                                  id="squallTime"
+                                  name="squallTime"
+                                  value={field.value || ""}
+                                  onChange={(e) =>
+                                    form.setFieldValue("squallTime", e.target.value)
+                                  }
+                                  onBlur={field.onBlur}
+                                  className={cn(
+                                    "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 bg-white",
+                                    {
+                                      "border-red-500 focus:border-red-500 focus:ring-red-200":
+                                        errors.squallTime && touched.squallTime,
+                                    }
+                                  )}
+                                >
+                                  <option value="">-- Select Time (qt) --</option>
+                                  <option value="0">
+                                    0 → 0 to ½ hour before observation
+                                  </option>
+                                  <option value="1">
+                                    1 → ½ to 1 hour before observation
+                                  </option>
+                                  <option value="2">
+                                    2 → 1 to 1¼ hour before observation
+                                  </option>
+                                  <option value="3">
+                                    3 → 1¼ to 2 hour before observation
+                                  </option>
+                                  <option value="4">
+                                    4 → 2 to 2½ hour before observation
+                                  </option>
+                                  <option value="5">
+                                    5 → 2½ to 3 hour before observation
+                                  </option>
+                                  <option value="6">
+                                    6 → 3 to 4 hour before observation
+                                  </option>
+                                  <option value="7">
+                                    7 → 4 to 5 hour before observation
+                                  </option>
+                                  <option value="8">
+                                    8 → 5 to 6 hour before observation
+                                  </option>
+                                  <option value="9">
+                                    9 → More than 6 hour before observation
+                                  </option>
+                                </select>
+                              )}
+                            </Field>
+                            <ErrorMessage
+                              name="squallTime"
+                              component="div"
+                              className="text-red-500 text-xs mt-1 font-medium"
+                            />
+                          </div>
 
                           {/* Squall Confirmed Checkbox */}
                           <div className="space-y-1 p-3 rounded-lg bg-amber-50 border border-white shadow-sm">
