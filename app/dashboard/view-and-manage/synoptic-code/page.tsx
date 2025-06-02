@@ -344,7 +344,7 @@ const SynopticCodeTable = forwardRef((props, ref) => {
 
     // Create headers
     let csvContent =
-      "Time,C1,Iliii,iRiXhvv,Nddff,1SnTTT,2SnTdTdTd,3PPP/4PPP,6RRRtR,7wwW1W2,8NhClCmCh,2SnTnTnTn/InInInIn,56DlDmDh,57CDaEc,C2,GG,58P24P24P24/59P24P24P24,(6RRRtR)/7R24R24R24,8N5Ch5h5,90dqqqt,91fqfqfq,Weather Remarks\n";
+      "Time,C1,Iliii,iRiXhvv,Nddff,1SnTTT,2SnTdTdTd,3PPP/4PPP,6RRRtR,7wwW1W2,8NhClCmCh,2SnTnTnTn/InInInIn,56DlDmDh,57CDaEc,C2,GG,58P24P24P24/59P24P24P24,(6RRRtR),8N5Ch5h5,90dqqqt,91fqfqfq,Weather Remarks\n";
 
     // Add data rows
     currentData.forEach((entry) => {
@@ -711,7 +711,7 @@ const SynopticCodeTable = forwardRef((props, ref) => {
                     58/59P24
                   </th>
                   <th className="border border-blue-300 px-4 py-3 whitespace-nowrap">
-                    (6RRRtR)/7R24
+                    (6RRRtR)
                   </th>
                   <th className="border border-blue-300 px-4 py-3 whitespace-nowrap">
                     8N5Ch5h5
