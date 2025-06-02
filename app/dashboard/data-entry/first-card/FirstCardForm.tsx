@@ -1129,15 +1129,7 @@ export function FirstCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
                         />
                       </div>
                     </CardContent>
-                    <CardFooter className="flex justify-between">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={prevTab}
-                        disabled={isFirstTab}
-                      >
-                        <ChevronLeft className="mr-2 h-4 w-4" /> Previous
-                      </Button>
+                    <CardFooter className="flex justify-end">
                       <Button
                         type="button"
                         onClick={nextTab}
@@ -1170,16 +1162,16 @@ export function FirstCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
                         {/* Temperature Values */}
                         <TabsContent value="temperature" className="mt-4">
                           <Tabs defaultValue="as-read" className="w-full">
-                            <TabsList className="grid w-full grid-cols-2 bg-blue-50/50 rounded-lg">
+                            <TabsList className="grid w-full grid-cols-2 gap-5 bg-blue-50/50 rounded-lg">
                               <TabsTrigger
                                 value="as-read"
-                                className="data-[state=active]:bg-blue-200 data-[state=active]:text-blue-800"
+                                className="data-[state=active]:bg-blue-200 data-[state=active]:text-blue-800 border border-blue-300"
                               >
                                 As Read
                               </TabsTrigger>
                               <TabsTrigger
                                 value="corrected"
-                                className="data-[state=active]:bg-blue-200 data-[state=active]:text-blue-800"
+                                className="data-[state=active]:bg-blue-200 data-[state=active]:text-blue-800 border border-blue-300"
                               >
                                 Corrected
                               </TabsTrigger>
@@ -1360,7 +1352,15 @@ export function FirstCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
                         </TabsContent>
                       </Tabs>
                     </CardContent>
-                    <CardFooter className="flex justify-end p-6">
+                    <CardFooter className="flex justify-between p-6">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={prevTab}
+                        disabled={isFirstTab}
+                      >
+                        <ChevronLeft className="mr-2 h-4 w-4" /> Previous
+                      </Button>
                       <Button
                         type="button"
                         onClick={nextTab}
@@ -1614,6 +1614,11 @@ export function FirstCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
                   <Card
                     className={cn("overflow-hidden", tabStyles["meteors"].card)}
                   >
+                     <div className="p-4 bg-gradient-to-r from-emerald-100 to-emerald-200 text-blue-800">
+                      <h3 className="text-lg font-semibold flex items-center">
+                        <Thermometer className="mr-2" /> Mise Meteors(Code)
+                      </h3>
+                    </div>
                     <CardContent className="pt-6 grid gap-4 sm:grid-cols-2">
                       <div className="space-y-2">
                         <Label htmlFor="miscMeteors">Misc Meteors(Code)</Label>
