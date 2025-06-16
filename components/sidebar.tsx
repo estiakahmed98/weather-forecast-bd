@@ -20,6 +20,7 @@ import {
   Eye,
   FileBarChart,
   X,
+  Leaf,
 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import {
@@ -136,6 +137,11 @@ const Sidebar = () => {
           href: "/dashboard/data-entry/daily-summery",
           label: "Daily Summery",
         },
+        {
+          icon: <Leaf className="mr-2 h-5 w-5" />,
+          href: "/dashboard/data-entry/agroclimatological",
+          label: "Agroclimatological",
+        }
       ],
     },
     {
