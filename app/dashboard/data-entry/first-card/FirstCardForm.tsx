@@ -45,6 +45,23 @@ const temperatureSchema = Yup.object({
     .matches(/^\d{3}$/, "Must be exactly 3 digits (e.g., 256 for 25.6°C)")
     .test("is-numeric", "Only numeric values allowed", (value) =>
       /^\d+$/.test(value || "")
+    )
+    .test(
+      "wet-bulb-validation",
+      "Wet Bulb Temperature can't be higher than Dry Bulb temperature",
+      function (value) {
+        const { dryBulbAsRead } = this.parent;
+        if (!value || !dryBulbAsRead) return true;
+
+        const wetBulbValue = Number.parseFloat(
+          `${value.slice(0, 2)}.${value.slice(2)}`
+        );
+        const dryBulbValue = Number.parseFloat(
+          `${dryBulbAsRead.slice(0, 2)}.${dryBulbAsRead.slice(2)}`
+        );
+
+        return wetBulbValue <= dryBulbValue;
+      }
     ),
   maxMinTempAsRead: Yup.string()
     .required("MAX/MIN অবশ্যই পূরণ করতে হবে")
@@ -360,6 +377,39 @@ export function FirstCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
       `${wetBulbInput.slice(0, 2)}.${wetBulbInput.slice(2)}`
     );
 
+    // ✅ BMD Rule 1: Wet Bulb can't be higher than Dry Bulb
+    if (wetBulbValue > dryBulbValue) {
+      toast.error("❌ BMD নিয়ম লঙ্ঘন!", {
+        description:
+          "Wet Bulb Temperature কখনোই Dry Bulb Temperature এর চেয়ে বেশি হতে পারে না।",
+        duration: 5000,
+      });
+      return;
+    }
+
+    // ✅ BMD Rule 2: When Dry Bulb = Wet Bulb, Dew Point = Same value
+    if (dryBulbValue === wetBulbValue) {
+      const formattedTemp = dryBulbInput; // Keep original 3-digit format
+
+      setHygrometricData({
+        dryBulb: dryBulbValue.toFixed(1),
+        wetBulb: wetBulbValue.toFixed(1),
+        difference: "0.0",
+        dewPoint: formattedTemp, // ✅ Fixed: Same as input
+        relativeHumidity: "100", // 100% humidity when dry = wet
+      });
+
+      formik.setFieldValue("Td", formattedTemp);
+      formik.setFieldValue("relativeHumidity", "100");
+
+      toast.success("✅ BMD নিয়ম অনুযায়ী হিসাব সম্পন্ন!", {
+        description: `Dry Bulb = Wet Bulb = ${dryBulbValue.toFixed(1)}°C, তাই Dew Point = ${dryBulbValue.toFixed(1)}°C`,
+        duration: 4000,
+      });
+      return;
+    }
+
+    // ✅ Normal calculation when Dry Bulb ≠ Wet Bulb
     const difference = Number(Math.abs(dryBulbValue - wetBulbValue).toFixed(1));
     const roundedDryBulb = Math.round(dryBulbValue);
 
@@ -391,8 +441,9 @@ export function FirstCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
 
     const { DpT, RH } = dbtEntry.values[diffIndex];
 
-    // ✅ ৩-ডিজিট ফরম্যাটিং করলাম নিচে
-    const formattedDpT = DpT.toString().padEnd(3, "0"); // e.g., 25 → "250"
+    // ✅ ৩-ডিজিট ফরম্যাটিং
+    const formattedDpT = (DpT * 10).toFixed(0); // ✅ সঠিক (যেমন 22.0 → "220")
+
     const formattedRH = RH === 100 ? "100" : RH.toString().padStart(3, "0"); // e.g., 65 → "065"
 
     // Update state
@@ -408,7 +459,29 @@ export function FirstCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
     formik.setFieldValue("Td", formattedDpT);
     formik.setFieldValue("relativeHumidity", formattedRH);
 
-    toast.success("Dew point and relative humidity calculated successfully");
+    toast.success("✅ Dew point and relative humidity calculated successfully");
+  };
+
+  // ✅ BMD Temperature Validation Helper
+  const validateTemperatureInputs = (dryBulb, wetBulb) => {
+    if (!dryBulb || !wetBulb) return true;
+
+    const dryBulbValue = Number.parseFloat(
+      `${dryBulb.slice(0, 2)}.${dryBulb.slice(2)}`
+    );
+    const wetBulbValue = Number.parseFloat(
+      `${wetBulb.slice(0, 2)}.${wetBulb.slice(2)}`
+    );
+
+    if (wetBulbValue > dryBulbValue) {
+      return {
+        isValid: false,
+        message:
+          "❌ BMD নিয়ম: Wet Bulb Temperature কখনোই Dry Bulb এর চেয়ে বেশি হতে পারে না!",
+      };
+    }
+
+    return { isValid: true };
   };
 
   const calculatePressureValues = (
@@ -668,6 +741,30 @@ export function FirstCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
         // Limit to 3 digits for temperature fields
         if (value.length <= 3) {
           formik.setFieldValue(name, value);
+
+          // ✅ Real-time BMD validation for temperature
+          if (name === "dryBulbAsRead" || name === "wetBulbAsRead") {
+            const dryBulb =
+              name === "dryBulbAsRead" ? value : formik.values.dryBulbAsRead;
+            const wetBulb =
+              name === "wetBulbAsRead" ? value : formik.values.wetBulbAsRead;
+
+            if (
+              dryBulb &&
+              wetBulb &&
+              dryBulb.length === 3 &&
+              wetBulb.length === 3
+            ) {
+              const validation = validateTemperatureInputs(dryBulb, wetBulb);
+              if (!validation.isValid) {
+                toast.error(validation.message, {
+                  description: "অনুগ্রহ করে সঠিক তাপমাত্রা প্রবেশ করান।",
+                  duration: 4000,
+                });
+                return; // Don't proceed with calculation
+              }
+            }
+          }
         }
         break;
 
@@ -705,7 +802,7 @@ export function FirstCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
       const wetBulb =
         name === "wetBulbAsRead" ? value : formik.values.wetBulbAsRead;
 
-      if (dryBulb && wetBulb) {
+      if (dryBulb && wetBulb && dryBulb.length === 3 && wetBulb.length === 3) {
         calculateDewPointAndHumidity(dryBulb, wetBulb);
       }
     }
@@ -1614,7 +1711,7 @@ export function FirstCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
                   <Card
                     className={cn("overflow-hidden", tabStyles["meteors"].card)}
                   >
-                     <div className="p-4 bg-gradient-to-r from-emerald-100 to-emerald-200 text-blue-800">
+                    <div className="p-4 bg-gradient-to-r from-emerald-100 to-emerald-200 text-blue-800">
                       <h3 className="text-lg font-semibold flex items-center">
                         <Thermometer className="mr-2" /> Mise Meteors(Code)
                       </h3>
