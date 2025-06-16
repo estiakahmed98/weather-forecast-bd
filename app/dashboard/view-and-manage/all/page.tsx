@@ -11,11 +11,12 @@ import { Download } from "lucide-react"
 import { useSession } from "@/lib/auth-client"
 import dynamic from "next/dynamic"
 import DailySummaryTable from "../daily-summery/daily-summery"
+import MargeTable from "@/components/margeTable"
 
 const CompactPDFExportButton = dynamic(() => import("../PdfExportComponent"), { ssr: false })
 
 export default function AllViewAndManagePage() {
-  const [activeTab, setActiveTab] = useState("first-card")
+  const [activeTab, setActiveTab] = useState("full-table")
   const { data: session } = useSession()
 
   const firstCardRef = useRef<any>(null)
@@ -130,10 +131,7 @@ const exportToExcel = () => {
   XLSX.writeFile(wb, "Weather_Data_All_Tabs.xlsx");
 };
 
-
-
-
-
+const MargeTableRef = useRef<any>(null);
 
 
   // Prepare station info for PDF
@@ -178,10 +176,16 @@ const exportToExcel = () => {
       </div>
 
       {/* Tabs Section - Responsive */}
-      <Tabs defaultValue="first-card" onValueChange={(value) => setActiveTab(value)} className="w-full">
+      <Tabs defaultValue="full-table" onValueChange={(value) => setActiveTab(value)} className="w-full">
         {/* Tab Navigation - Responsive with Horizontal Scroll */}
         <div className="w-full md:w-[200px]">
           <TabsList className="bg-gradient-to-r from-blue-400 to-blue-500 shadow rounded-lg p-1 flex justify-start gap-1 sm:gap-2 min-w-max w-full h-12 sm:w-auto">
+          <TabsTrigger 
+              value="full-table" 
+              className="whitespace-nowrap text-xs md:text-md sm:text-sm px-2 sm:px-3 py-4 sm:py-6 data-[state=active]:text-blue-500 data-[state=inactive]:text-white"
+            >
+              Full Table
+            </TabsTrigger>
             <TabsTrigger 
               value="first-card" 
               className="whitespace-nowrap text-xs md:text-md sm:text-sm px-2 sm:px-3 py-4 sm:py-6 data-[state=active]:text-blue-500 data-[state=inactive]:text-white"
@@ -212,6 +216,9 @@ const exportToExcel = () => {
         {/* Content Area - Responsive */}
         <div className="mt-4 md:mt-6 rounded-lg border bg-white shadow overflow-hidden">
           <div className="p-2 sm:p-4 overflow-x-auto">
+            <div hidden={activeTab !== "full-table"}>
+              <MargeTable ref={MargeTableRef} />
+            </div>
             <div hidden={activeTab !== "first-card"}>
               <FirstCardTable ref={firstCardRef} />
             </div>
