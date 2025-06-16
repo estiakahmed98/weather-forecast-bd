@@ -486,7 +486,7 @@ export function FirstCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
       return {
         isValid: false,
         message:
-          "❌ BMD নিয়ম: Wet Bulb Temperature কখনোই Dry Bulb এর চেয়ে বেশি হতে পারে না!",
+          "❌ BMD নিয়ম অনুযায়ী Wet Bulb Temperature কখনোই Dry Bulb এর চেয়ে বেশি হতে পারে না!",
       };
     }
 
