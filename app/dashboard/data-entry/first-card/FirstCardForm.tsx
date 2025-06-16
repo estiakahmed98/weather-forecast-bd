@@ -32,6 +32,17 @@ import { AnimatePresence, motion } from "framer-motion";
 import type { MeteorologicalEntry } from "@prisma/client";
 import type { TimeInfo } from "@/lib/data-type";
 
+// Determine when to show min or max temp based on selected utc hour
+const checkMinMax = (value: string): string | null => {
+  if (value === "00" || value === "03") {
+    return "Min";
+  } else if (value === "09" || value === "12") {
+    return "Max";
+  } else {
+    return null;
+  }
+};
+
 // Validation schemas for each tab
 const temperatureSchema = Yup.object({
   dryBulbAsRead: Yup.string()
@@ -63,12 +74,10 @@ const temperatureSchema = Yup.object({
         return wetBulbValue <= dryBulbValue;
       }
     ),
-  maxMinTempAsRead: Yup.string()
-    .required("MAX/MIN অবশ্যই পূরণ করতে হবে")
-    .matches(/^\d{3}$/, "Must be exactly 3 digits (e.g., 256 for 25.6°C)")
-    .test("is-numeric", "Only numeric values allowed", (value) =>
-      /^\d+$/.test(value || "")
-    ),
+  maxMinTempAsRead: Yup.string().matches(
+    /^\d{3}$/,
+    "Must be exactly 3 digits (e.g., 256 for 25.6°C)"
+  ),
 });
 
 const pressureSchema = Yup.object({
@@ -1321,27 +1330,32 @@ export function FirstCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
                                   {renderErrorMessage("wetBulbAsRead")}
                                 </div>
 
-                                <div className="space-y-2">
-                                  <Label htmlFor="maxMinTempAsRead">
-                                    MAX/MIN (°C)
-                                  </Label>
-                                  <Input
-                                    id="maxMinTempAsRead"
-                                    name="maxMinTempAsRead"
-                                    value={formik.values.maxMinTempAsRead || ""}
-                                    onChange={handleNumericInput}
-                                    onBlur={formik.handleBlur}
-                                    className={cn(
-                                      "border-slate-600 transition-all focus:border-blue-400 focus:ring-blue-500/30",
-                                      {
-                                        "border-red-500":
-                                          formik.touched.maxMinTempAsRead &&
-                                          formik.errors.maxMinTempAsRead,
+                                {checkMinMax(selectedHour) && (
+                                  <div className="space-y-2">
+                                    <Label htmlFor="maxMinTempAsRead">
+                                      {checkMinMax(selectedHour)} Temperature
+                                      (°C)
+                                    </Label>
+                                    <Input
+                                      id="maxMinTempAsRead"
+                                      name="maxMinTempAsRead"
+                                      value={
+                                        formik.values.maxMinTempAsRead || ""
                                       }
-                                    )}
-                                  />
-                                  {renderErrorMessage("maxMinTempAsRead")}
-                                </div>
+                                      onChange={handleNumericInput}
+                                      onBlur={formik.handleBlur}
+                                      className={cn(
+                                        "border-slate-600 transition-all focus:border-blue-400 focus:ring-blue-500/30",
+                                        {
+                                          "border-red-500":
+                                            formik.touched.maxMinTempAsRead &&
+                                            formik.errors.maxMinTempAsRead,
+                                        }
+                                      )}
+                                    />
+                                    {renderErrorMessage("maxMinTempAsRead")}
+                                  </div>
+                                )}
                               </div>
                             </TabsContent>
 
@@ -1374,20 +1388,23 @@ export function FirstCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
                                   />
                                 </div>
 
-                                <div className="space-y-2">
-                                  <Label htmlFor="maxMinTempCorrected">
-                                    MAX/MIN (°C)
-                                  </Label>
-                                  <Input
-                                    id="maxMinTempCorrected"
-                                    name="maxMinTempCorrected"
-                                    value={
-                                      formik.values.maxMinTempCorrected || ""
-                                    }
-                                    onChange={handleNumericInput}
-                                    className="border-slate-600 transition-all focus:border-blue-400 focus:ring-blue-500/30"
-                                  />
-                                </div>
+                                {checkMinMax(selectedHour) && (
+                                  <div className="space-y-2">
+                                    <Label htmlFor="maxMinTempCorrected">
+                                      {checkMinMax(selectedHour)} Temperature
+                                      (°C)
+                                    </Label>
+                                    <Input
+                                      id="maxMinTempCorrected"
+                                      name="maxMinTempCorrected"
+                                      value={
+                                        formik.values.maxMinTempCorrected || ""
+                                      }
+                                      onChange={handleNumericInput}
+                                      className="border-slate-600 transition-all focus:border-blue-400 focus:ring-blue-500/30"
+                                    />
+                                  </div>
+                                )}
                               </div>
                             </TabsContent>
                           </Tabs>

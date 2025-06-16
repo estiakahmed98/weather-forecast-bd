@@ -235,13 +235,19 @@ export async function GET() {
     let sN, x;
     if (minTemp >= 0) {
       sN = 0;
-      x = 1;
     } else {
       sN = 1;
-      x = 2;
     }
+    
+    const time = utcToHour(observingTime.utcTime.toString());
+    if (time === "00" || time === "03") {
+      x = 2;
+    } else if (time === "09" || time === "12") {
+      x = 1;
+    }
+    
     const conVertMinTemp = pad(Math.abs(Math.round(minTemp * 10)), 3);
-    measurements[10] = `${x}${sN}${conVertMinTemp}`;
+    measurements[10] = x ? `${x}${sN}${conVertMinTemp}` : "";
 
     // 12. 56DlDmDh (67-71) - Cloud directions
     const lowDir = weatherObs.lowCloudDirection || "0";
