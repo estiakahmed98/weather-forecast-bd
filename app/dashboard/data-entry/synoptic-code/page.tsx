@@ -16,7 +16,7 @@ const initialValues = {
 export default function Page() {
   return (
     <Formik initialValues={initialValues} onSubmit={(values) => console.log(values)}>
-      <Form className="p-8">
+      <Form>
         <SynopticCode />
       </Form>
     </Formik>

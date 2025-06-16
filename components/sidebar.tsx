@@ -192,7 +192,7 @@ const Sidebar = () => {
 
   return (
     <>
-      <div className="md:hidden fixed top-4 left-4 z-50">
+      <div className="md:hidden fixed top-4 left-4">
         <Button
           onClick={toggleMobileSidebar}
           variant="outline"
@@ -211,7 +211,7 @@ const Sidebar = () => {
       <div
         ref={sidebarRef}
         className={cn(
-          "bg-sky-700 text-white h-full transition-all duration-300 ease-in-out",
+          "bg-sky-700 text-white h-full transition-all duration-300 ease-in-out shrink-0",
           "fixed md:relative z-40 flex flex-col",
           "border-r border-sky-800",
           isCollapsed ? "w-16" : "w-64",
@@ -274,7 +274,7 @@ const Sidebar = () => {
 
       {isMobileOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-30 md:hidden backdrop-blur-sm"
+          className="fixed inset-0 bg-black/50 z-[9] md:hidden backdrop-blur-sm shrink-0"
           onClick={toggleMobileSidebar}
         />
       )}

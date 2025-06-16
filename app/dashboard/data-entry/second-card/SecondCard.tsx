@@ -859,7 +859,7 @@ export default function SecondCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="absolute inset-0 flex items-center justify-center bg-white backdrop-blur-sm z-50 px-6"
+            className="absolute inset-0 flex items-center justify-center bg-white backdrop-blur-sm z-[5] px-6"
           >
             <HourSelector type="second" timeInfo={timeInfo} />
           </motion.div>

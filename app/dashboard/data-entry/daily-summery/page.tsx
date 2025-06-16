@@ -11,12 +11,12 @@ const initialValues = {
 export default function DailySummaryWrapper() {
   return (
     <Formik initialValues={initialValues} onSubmit={() => {}}>
-      <Form className="p-8">
+      <Form>
         <div className="mb-4 font-semibold text-gray-900 text-lg">
           Weather Observations & Daily Summary
         </div>
 
-        <div className="mb-4 h-[30vh] overflow-y-auto border border-gray-200 p-3 rounded-lg">
+        <div className="mb-4 min-h-[30vh] max-h-[60vh] overflow-y-auto border border-gray-200 p-3 rounded-lg">
           <WeatherDataTable />
         </div>
         <DailySummaryForm />
