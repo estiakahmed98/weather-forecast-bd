@@ -741,8 +741,8 @@ const MargeTable = forwardRef(({ refreshTrigger = 0 }: MargeTableProps, ref) => 
                       First Card
                     </th>
                     <th
-                      colSpan={32}
-                      className="border border-purple-300 bg-gradient-to-b from-purple-50 to-purple-100 p-1 text-purple-800"
+                      colSpan={35}
+                      className="border border-purple-500 bg-gradient-to-b from-purple-50 to-purple-100 p-1 text-purple-800"
                     >
                       Second Card
                     </th>
