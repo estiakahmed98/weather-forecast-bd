@@ -75,6 +75,76 @@ import tarashSea from "./station_pressure_level/Tarash-sea_level";
 import tangailStation from "./station_pressure_level/Tangail-station_level";
 import tangailSea from "./station_pressure_level/Tangail-sea_level";
 
+
+import BograStation from "./station_pressure_level/Bogra-station_level";
+import BograSea from "./station_pressure_level/Bogra-sea_level";
+
+import comillaStation from "./station_pressure_level/comilla-station_level";
+import comillaSea from "./station_pressure_level/comilla-sea_level";
+
+import ctgPortStation from "./station_pressure_level/ctg_port-station_level";
+import ctgPortSea from "./station_pressure_level/ctg_port-sea_level";
+
+import ctgMmoStation from "./station_pressure_level/Ctg-station_level";
+import ctgMmoSea from "./station_pressure_level/Ctg-sea_level";
+
+import isdStation from "./station_pressure_level/ISD-station_level";
+import isdSea from "./station_pressure_level/ISD-sea_level";
+
+import isdAirometStation from "./station_pressure_level/Ishurdi-station_level";
+import isdAirometSea from "./station_pressure_level/Ishurdi-sea_level";
+
+import khepuparaStation from "./station_pressure_level/kpr-station_level";
+import khepuparaSea from "./station_pressure_level/kpr-sea_level";
+
+import ktbStation from "./station_pressure_level/Ktb-station_level";
+import ktbSea from "./station_pressure_level/Ktb-sea_level";
+
+import KumarKhaliStation from "./station_pressure_level/Kumarkhali-station_level";
+import KumarKhaliSea from "./station_pressure_level/Kumarkhali-sea_level";
+
+import MaijdeeStation from "./station_pressure_level/Maijdee-station_level";
+import MaijdeeSea from "./station_pressure_level/Maijdee-sea_level";
+
+import mnlStation from "./station_pressure_level/mnl-station_level";
+import mnlSea from "./station_pressure_level/mnl-sea_level";
+
+import NagStation from "./station_pressure_level/Nag-station_level";
+import NagSea from "./station_pressure_level/Nag-sea_level";
+
+import NetrokonaStation from "./station_pressure_level/Netrokona-station_level";
+import NetrokonaSea from "./station_pressure_level/Netrokona-sea_level";
+
+import PatuaKhaliStation from "./station_pressure_level/Patuakhali-station_level";
+import PatuaKhaliSea from "./station_pressure_level/Patuakhali-sea_level";
+
+import rmtStation from "./station_pressure_level/rmt-station_level";
+import rmtSea from "./station_pressure_level/rmt-sea_level";
+
+import RnpStation from "./station_pressure_level/Rnp-station_level";
+import RnpSea from "./station_pressure_level/Rnp-sea_level";
+
+import sitStation from "./station_pressure_level/sit-station_level";
+import sitSea from "./station_pressure_level/sit-sea_level";
+
+import SpdStation from "./station_pressure_level/Spd-station_level";
+import SpdSea from "./station_pressure_level/Spd-sea_level";
+
+import SylhetOIAStation from "./station_pressure_level/Sylhet(OIA)-station_level";
+import SylhetOIASea from "./station_pressure_level/Sylhet(OIA)-sea_level";
+
+import SylhetStation from "./station_pressure_level/SYT-station_level";
+import SylhetSea from "./station_pressure_level/SYT-sea_level";
+
+import TetuliaStation from "./station_pressure_level/Tetulia-station_level";
+import TetuliaSea from "./station_pressure_level/Tetulia-sea_level";
+
+import tkfStation from "./station_pressure_level/tkf-station_level";
+import tkfSea from "./station_pressure_level/tkf-sea_level";
+
+import BHLStation from "./station_pressure_level/BHL-station_level";
+import BHLSea from "./station_pressure_level/BHL-sea_Level"
+
 export const stationDataMap = {
   [dhakaStation.station.station_no]: { station: dhakaStation, sea: dhakaSea },
   [cxbStation.station.station_no]: { station: cxbStation, sea: cxbSea },
@@ -160,4 +230,98 @@ export const stationDataMap = {
     station: tangailStation,
     sea: tangailSea,
   },
+  [BograStation.station.station_no]: {
+    station: BograStation,
+    sea: BograSea,
+  },
+  [comillaStation.station.station_no]: {
+    station: comillaStation,
+    sea: comillaSea,
+  },
+  [ctgPortStation.station.station_no]: {
+    station: ctgPortStation,
+    sea: ctgPortSea,
+  },
+  [ctgMmoStation.station.station_no]: {
+    station: ctgMmoStation,
+    sea: ctgMmoSea,
+  },
+  [isdStation.station.station_no]: {
+    station: isdStation,
+    sea: isdSea,
+  },
+  [isdAirometStation.station.station_no]: {
+    station: isdAirometStation,
+    sea: isdAirometSea,
+  },
+  [khepuparaStation.station.station_no]: {
+    station: khepuparaStation,
+    sea: khepuparaSea,
+  },
+  [ktbStation.station.station_no]: {
+    station: ktbStation,
+    sea: ktbSea,
+  },
+  [KumarKhaliStation.station.station_no]: {
+    station: KumarKhaliStation,
+    sea: KumarKhaliSea,
+  },
+  [MaijdeeStation.station.station_no]: {
+    station: MaijdeeStation,
+    sea: MaijdeeSea,
+  },
+  [mnlStation.station.station_no]: {
+    station: mnlStation,
+    sea: mnlSea,
+  },
+  [NagStation.station.station_no]: {
+    station: NagStation,
+    sea: NagSea,
+  },
+  [NetrokonaStation.station.station_no]: {
+    station: NetrokonaStation,
+    sea: NetrokonaSea,
+  },
+  [PatuaKhaliStation.station.station_no]: {
+    station: PatuaKhaliStation,
+    sea: PatuaKhaliSea,
+  },
+  [rmtStation.station.station_no]: {
+    station: rmtStation,
+    sea: rmtSea,
+  },
+  [RnpStation.station.station_no]: {
+    station: RnpStation,
+    sea: RnpSea,
+  },
+  [sitStation.station.station_no]: {
+    station: sitStation,
+    sea: sitSea,
+  },
+  [SpdStation.station.station_no]: {
+    station: SpdStation,
+    sea: SpdSea,
+  },
+  [SylhetOIAStation.station.station_no]: {
+    station: SylhetOIAStation,
+    sea: SylhetOIASea,
+  },
+  [SylhetStation.station.station_no]: {
+    station: SylhetStation,
+    sea: SylhetSea,
+  },
+  [TetuliaStation.station.station_no]: {
+    station: TetuliaStation,
+    sea: TetuliaSea,
+  },
+  [tkfStation.station.station_no]: {
+    station: tkfStation,
+    sea: tkfSea,
+  },
+  [BHLStation.station.station_no]: {
+    station: BHLStation,
+    sea: BHLSea,
+  },
+
+  
 };

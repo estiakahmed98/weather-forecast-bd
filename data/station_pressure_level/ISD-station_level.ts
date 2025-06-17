@@ -1,4 +1,4 @@
-export const stationPressure = {
+ const stationPressure = {
     "station": {
         "name": "Pilot Balloon Observatory, Ishurdi",
         "station_no": "41907",
@@ -957,7 +957,9 @@ export const stationPressure = {
                 "1020": 0.17,
                 "1025": 0.17,
                 "1030": 0.17
-            }
-        }
-    ]
-}
+            },
+        },
+    ],
+};
+
+export default stationPressure;

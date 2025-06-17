@@ -1,4 +1,4 @@
-export const seaLevelPressure = {
+ const seaLevelPressure = {
     "station": {
         "name": "Pilot Balloon Observatory, Ishurdi",
         "station_no": "41907",
@@ -961,3 +961,5 @@ export const seaLevelPressure = {
         }
     ]
 };
+
+export default seaLevelPressure;
