@@ -1,6 +1,6 @@
 "use client";
 
-import type React from "react";
+import React from "react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import {
@@ -280,34 +280,58 @@ export default function SecondCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
   // Tab styles with gradients and more vibrant colors
   const tabStyles = {
     cloud: {
-      tab: "border border-blue-500 px-4 py-3 !bg-blue-50 text-blue-800 hover:opacity-90 shadow-sm shadow-blue-500/50",
+      tab: "from-blue-500 to-blue-600",
+      icon: <CloudIcon className="w-4 h-4" />,
+      iconColor: "text-blue-500",
+      iconBg: "from-blue-100 to-blue-50",
+      originalTab:
+        "border border-blue-500 px-4 py-3 !bg-blue-50 text-blue-800 hover:opacity-90 shadow-sm shadow-blue-500/50",
       card: "bg-gradient-to-br from-blue-50 to-white border-l-4 border-blue-200 shadow-sm",
-      icon: <CloudIcon className="size-5 mr-2" />,
     },
     n: {
-      tab: "border border-yellow-500 px-4 py-3 !bg-yellow-50 text-yellow-800 hover:opacity-90 shadow-sm shadow-yellow-500/50",
+      tab: "from-yellow-500 to-yellow-600",
+      icon: <Sun className="w-4 h-4" />,
+      iconColor: "text-yellow-500",
+      iconBg: "from-yellow-100 to-yellow-50",
+      originalTab:
+        "border border-yellow-500 px-4 py-3 !bg-yellow-50 text-yellow-800 hover:opacity-90 shadow-sm shadow-yellow-500/50",
       card: "bg-gradient-to-br from-yellow-50 to-white border-l-4 border-yellow-200 shadow-sm",
-      icon: <Sun className="size-5 mr-2" />,
     },
     "significant-cloud": {
-      tab: "border border-purple-500 px-4 py-3 !bg-purple-50 text-purple-800 hover:opacity-90 shadow-sm shadow-purple-500/50",
+      tab: "from-purple-500 to-purple-600",
+      icon: <CloudIcon className="w-4 h-4" />,
+      iconColor: "text-purple-500",
+      iconBg: "from-purple-100 to-purple-50",
+      originalTab:
+        "border border-purple-500 px-4 py-3 !bg-purple-50 text-purple-800 hover:opacity-90 shadow-sm shadow-purple-500/50",
       card: "bg-gradient-to-br from-purple-50 to-white border-l-4 border-purple-200 shadow-sm",
-      icon: <CloudIcon className="size-5 mr-2" />,
     },
     rainfall: {
-      tab: "border border-cyan-500 px-4 py-3 !bg-cyan-50 text-cyan-800 hover:opacity-90 shadow-sm shadow-cyan-500/50",
+      tab: "from-cyan-500 to-cyan-600",
+      icon: <CloudRainIcon className="w-4 h-4" />,
+      iconColor: "text-cyan-500",
+      iconBg: "from-cyan-100 to-cyan-50",
+      originalTab:
+        "border border-cyan-500 px-4 py-3 !bg-cyan-50 text-cyan-800 hover:opacity-90 shadow-sm shadow-cyan-500/50",
       card: "bg-gradient-to-br from-cyan-50 to-white border-l-4 border-cyan-200 shadow-sm",
-      icon: <CloudRainIcon className="size-5 mr-2" />,
     },
     wind: {
-      tab: "border border-green-500 px-4 py-3 !bg-green-50 text-green-800 hover:opacity-90 shadow-sm shadow-green-500/50",
+      tab: "from-green-500 to-green-600",
+      icon: <Wind className="w-4 h-4" />,
+      iconColor: "text-green-500",
+      iconBg: "from-green-100 to-green-50",
+      originalTab:
+        "border border-green-500 px-4 py-3 !bg-green-50 text-green-800 hover:opacity-90 shadow-sm shadow-green-500/50",
       card: "bg-gradient-to-br from-green-50 to-white border-l-4 border-green-200 shadow-sm",
-      icon: <Wind className="size-5 mr-2" />,
     },
     observer: {
-      tab: "border border-orange-500 px-4 py-3 !bg-orange-50 text-orange-800 hover:opacity-90 shadow-sm shadow-orange-500/50",
+      tab: "from-orange-500 to-orange-600",
+      icon: <User className="w-4 h-4" />,
+      iconColor: "text-orange-500",
+      iconBg: "from-orange-100 to-orange-50",
+      originalTab:
+        "border border-orange-500 px-4 py-3 !bg-orange-50 text-orange-800 hover:opacity-90 shadow-sm shadow-orange-500/50",
       card: "bg-gradient-to-br from-orange-50 to-white border-l-4 border-orange-200 shadow-sm",
-      icon: <User className="size-5 mr-2" />,
     },
   };
 
@@ -503,6 +527,21 @@ export default function SecondCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
       }
       return false;
     });
+  };
+
+  // Enhanced setActiveTab function that validates before changing tabs
+  const handleTabChange = (tabName: string) => {
+    // If trying to navigate away from current tab, validate it first
+    if (activeTab !== tabName) {
+      if (!validateTab(activeTab)) {
+        toast.error("অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন", {
+          description:
+            "অন্য ট্যাবে যাওয়ার আগে বর্তমান ট্যাবের সকল তথ্য পূরণ করুন",
+        });
+        return;
+      }
+    }
+    setActiveTab(tabName);
   };
 
   // Initialize session-specific values when session is available
@@ -901,29 +940,97 @@ export default function SecondCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
                 className="w-full"
               >
                 {/* Responsive tabs list */}
-                <TabsList className="grid w-full mb-10 grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 sm:gap-3 rounded-xl p-1 border-0 bg-transparent">
-                  {Object.entries(tabStyles).map(([key, style]) => (
-                    <TabsTrigger
-                      key={key}
-                      value={key}
-                      className={cn(
-                        "border border-gray-300 text-xs sm:text-sm",
-                        {
-                          [style.tab]: activeTab === key,
-                          "!border-red-500 !text-red-700":
-                            !isTabValid(key) && formik.submitCount > 0,
-                        }
-                      )}
-                    >
-                      <div className="flex items-center justify-center gap-1">
-                        {style.icon}
-                        <span className="hidden sm:inline">
-                          {key === "n" ? "Total Cloud" : key}
-                        </span>
-                      </div>
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
+                <div className="relative">
+                  <div className="relative p-1 bg-white/80 backdrop-blur-sm rounded-full shadow-lg border border-gray-200/50 max-w-max mx-auto">
+                    <div className="relative flex flex-wrap justify-center items-center gap-1 p-1.5 rounded-full bg-gray-100/50">
+                      {Object.entries(tabStyles).map(([key, style], index) => {
+                        const isActive = activeTab === key;
+                        const iconColor = style.iconColor || "text-blue-500";
+
+                        return (
+                          <motion.button
+                            key={key}
+                            type="button"
+                            onClick={() => {
+                              if (
+                                activeTab !== key &&
+                                !validateTab(activeTab)
+                              ) {
+                                toast.error("Complete required fields", {
+                                  description:
+                                    "Please fill all required information before switching tabs",
+                                });
+                                return false;
+                              }
+                              handleTabChange(key);
+                            }}
+                            className={cn(
+                              "relative flex items-center justify-center px-6 py-2 rounded-full transition-all duration-300 transform",
+                              "focus:outline-none min-w-[80px]",
+                              isActive
+                                ? "bg-white shadow shadow-blue-300 text-gray-900 font-semibold"
+                                : "text-gray-600 hover:text-gray-800 hover:bg-white/50",
+                              !isTabValid(key) &&
+                                formik.submitCount > 0 &&
+                                "!border-2 !border-red-400 !bg-red-50"
+                            )}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{
+                              opacity: 1,
+                              x: 0,
+                              scale: isActive ? 1.05 : 1,
+                            }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 300,
+                              damping: 20,
+                              delay: index * 0.05,
+                            }}
+                          >
+                            <div className="relative z-10 flex items-center gap-1">
+                              <div
+                                className={cn(
+                                  "p-1.5 rounded-full transition-all duration-200",
+                                  {
+                                    "scale-110": isActive,
+                                    [iconColor]: !isActive,
+                                    "bg-white/20": isActive,
+                                  }
+                                )}
+                              >
+                                {React.cloneElement(style.icon, {
+                                  className: cn("w-4 h-4", {
+                                    "text-blue-500": isActive,
+                                    [iconColor]: !isActive,
+                                  }),
+                                })}
+                              </div>
+                              <span className="text-base capitalize font-medium">
+                                {key === "n"
+                                  ? "Total Cloud"
+                                  : key === "V.V"
+                                    ? "VV"
+                                    : key}
+                              </span>
+                            </div>
+
+                            {isActive && (
+                              <motion.div
+                                className="absolute inset-0 bg-white rounded-full border border-gray-200 z-0"
+                                layoutId="activePill"
+                                transition={{
+                                  type: "spring",
+                                  bounce: 0.2,
+                                  duration: 0.6,
+                                }}
+                              />
+                            )}
+                          </motion.button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
 
                 <div className="p-4 sm:p-6">
                   {/* CLOUD Tab */}
@@ -1966,7 +2073,9 @@ function SignificantCloudSection({
   renderError: (field: string) => React.ReactNode;
 }) {
   // Generate height options from 0 to 99
-  const heightOptions = Array.from({ length: 100 }, (_, i) => i.toString().padStart(2, '0'));
+  const heightOptions = Array.from({ length: 100 }, (_, i) =>
+    i.toString().padStart(2, "0")
+  );
 
   const cloudFormOptions = [
     { value: "0", label: "0 - Cirrus (Ci)" },
