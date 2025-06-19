@@ -393,6 +393,76 @@ const SynopticCodeTable = forwardRef((props, ref) => {
     document.body.removeChild(link);
   };
 
+  // Function to export data as TXT (SYNOP format)
+  // Function to export data as TXT (SYNOP format)
+  const exportToTXT = () => {
+    if (!currentData || currentData.length === 0) return;
+
+    // Create header with station info
+    let txtContent = `SYNOP DATA\n`;
+    txtContent += `Station: ${headerInfo.stationNo}\n`;
+    txtContent += `Date: ${headerInfo.year}/${headerInfo.month}/${headerInfo.day}\n\n`;
+
+    // Add column headers
+    txtContent += `Time  C1   Iliii iRiXhvv Nddff 1SnTTT 2SnTdTdTd 3PPP/4PPP 6RRRtR 7wwW1W2 8NhClCmCh 2SnTnTnTn/InInInIn 56DlDmDh 57CDaEc C2 GG 58/59P24 (6RRRtR) 8N5Ch5h5 90dqqqt 91fqfqfq Remarks\n`;
+    txtContent += `-----------------------------------------------------------------------------------------------------------------------------------------------------------\n`;
+
+    // Add data rows in SYNOP format
+    currentData.forEach((entry) => {
+      const observingTime = entry.ObservingTime?.utcTime
+        ? new Date(entry.ObservingTime.utcTime)
+        : new Date();
+      const timeSlot = observingTime.getUTCHours().toString().padStart(2, "0");
+
+      // Format each field with fixed width
+      const formatField = (value: string | undefined, width: number) => {
+        return (value || "").padEnd(width).substring(0, width);
+      };
+
+      let synopLine = `${timeSlot}  `;
+      synopLine += `${formatField(entry.C1, 3)} `;
+      synopLine += `${formatField(entry.Iliii, 5)} `;
+      synopLine += `${formatField(entry.iRiXhvv, 6)} `;
+      synopLine += `${formatField(entry.Nddff, 5)} `;
+      synopLine += `${formatField(entry.S1nTTT, 6)} `;
+      synopLine += `${formatField(entry.S2nTddTddTdd, 9)} `;
+      synopLine += `${formatField(entry.P3PPP4PPPP, 8)} `;
+      synopLine += `${formatField(entry.RRRtR6, 6)} `;
+      synopLine += `${formatField(entry.wwW1W2, 7)} `;
+      synopLine += `${formatField(entry.NhClCmCh, 9)} `;
+      synopLine += `${formatField(entry.S2nTnTnTnInInInIn, 15)} `;
+      synopLine += `${formatField(entry.D56DLDMDH, 8)} `;
+      synopLine += `${formatField(entry.CD57DaEc, 7)} `;
+      synopLine += `${formatField(entry.C2, 2)} `;
+      synopLine += `${formatField(entry.GG, 2)} `;
+      synopLine += `${formatField(entry.P24Group58_59, 8)} `;
+      synopLine += `${formatField(entry.R24Group6_7, 8)} `;
+      synopLine += `${formatField(entry.NsChshs, 8)} `;
+      synopLine += `${formatField(entry.dqqqt90, 7)} `;
+      synopLine += `${formatField(entry.fqfqfq91, 7)} `;
+
+      // Add weather remarks if available
+      if (entry.weatherRemark) {
+        synopLine += ` ${entry.weatherRemark.split(" - ")[1] || ""}`;
+      }
+
+      txtContent += synopLine + "\n";
+    });
+
+    // Create download link
+    const blob = new Blob([txtContent], { type: "text/plain;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `synoptic_${headerInfo.stationNo}_${headerInfo.year}${headerInfo.month}${headerInfo.day}.txt`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // Function to print the table
   const printTable = () => {
     window.print();
@@ -479,6 +549,16 @@ const SynopticCodeTable = forwardRef((props, ref) => {
               >
                 <Download size={18} className="flex-shrink-0" />
                 <span className="text-sm sm:text-base whitespace-nowrap">Export CSV</span>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="flex items-center justify-center gap-2 text-green-700 border-green-300 hover:bg-green-50 w-full sm:w-auto px-3 py-2"
+                onClick={exportToTXT}
+                disabled={!currentData || currentData.length === 0}
+              >
+                <Download size={18} className="flex-shrink-0" />
+                <span className="text-sm sm:text-base whitespace-nowrap">Export TXT</span>
               </Button>
             </div>
           )}

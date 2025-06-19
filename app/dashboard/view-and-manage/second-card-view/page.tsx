@@ -137,7 +137,7 @@ const validationSchema = yup.object({
     .string()
     .matches(/^\d{2}$/, "Must be exactly 2 digits")
     .required("Required"),
- 
+
   rainfallSincePrevious: yup
     .string()
     .matches(/^\d{2}$/, "Must be exactly 2 digits")
@@ -682,6 +682,104 @@ const SecondCardTable = forwardRef(({ refreshTrigger = 0 }: SecondCardTableProps
     toast.success("CSV export started")
   }
 
+  const exportToTXT = () => {
+    const filteredData = data.filter((record) => record.WeatherObservation && record.WeatherObservation.length > 0)
+
+    if (filteredData.length === 0) {
+      toast.error("No weather observation data available to export")
+      return
+    }
+
+    // Create TXT header with metadata
+    let txtContent = `Weather Observation Data Report\n`
+    txtContent += `Date Range: ${startDate} to ${endDate}\n`
+    txtContent += `Station: ${stationFilter === "all" ? "All Stations" : user?.station?.name || ""}\n`
+    txtContent += `Generated: ${new Date().toLocaleString()}\n\n`
+
+    // Create column headers
+    const headers = [
+      "Time (GMT)", "Station", "Total Cloud",
+      "Low Cloud Form", "Low Cloud Amount", "Low Cloud Height", "Low Cloud Direction",
+      "Medium Cloud Form", "Medium Cloud Amount", "Medium Cloud Height", "Medium Cloud Direction",
+      "High Cloud Form", "High Cloud Amount", "High Cloud Direction",
+      "Layer1 Form", "Layer1 Amount", "Layer1 Height",
+      "Layer2 Form", "Layer2 Amount", "Layer2 Height",
+      "Layer3 Form", "Layer3 Amount", "Layer3 Height",
+      "Layer4 Form", "Layer4 Amount", "Layer4 Height",
+      "Rainfall Start", "Rainfall End", "Since Previous", "During Previous", "Last 24 Hours",
+      "Wind 1st Anem", "Wind 2nd Anem", "Wind Speed", "Wind Direction", "Observer"
+    ]
+
+    // Format headers as fixed-width columns
+    txtContent += headers.map(h => h.padEnd(20)).join("") + "\n"
+    txtContent += "-".repeat(headers.length * 20) + "\n"
+
+    // Create TXT rows with fixed-width formatting
+    const rows = filteredData.map((record) => {
+      const weatherObs = record.WeatherObservation[0] || {}
+
+      const rowData = [
+        utcToHour(record.utcTime).padEnd(20),
+        (record.station?.name || "--").padEnd(20),
+        (weatherObs.totalCloudAmount || "--").padEnd(20),
+        (weatherObs.lowCloudForm || "--").padEnd(20),
+        (weatherObs.lowCloudAmount || "--").padEnd(20),
+        (weatherObs.lowCloudHeight || "--").padEnd(20),
+        (weatherObs.lowCloudDirection || "--").padEnd(20),
+        (weatherObs.mediumCloudForm || "--").padEnd(20),
+        (weatherObs.mediumCloudAmount || "--").padEnd(20),
+        (weatherObs.mediumCloudHeight || "--").padEnd(20),
+        (weatherObs.mediumCloudDirection || "--").padEnd(20),
+        (weatherObs.highCloudForm || "--").padEnd(20),
+        (weatherObs.highCloudAmount || "--").padEnd(20),
+        (weatherObs.highCloudDirection || "--").padEnd(20),
+        (weatherObs.layer1Form || "--").padEnd(20),
+        (weatherObs.layer1Amount || "--").padEnd(20),
+        (weatherObs.layer1Height || "--").padEnd(20),
+        (weatherObs.layer2Form || "--").padEnd(20),
+        (weatherObs.layer2Amount || "--").padEnd(20),
+        (weatherObs.layer2Height || "--").padEnd(20),
+        (weatherObs.layer3Form || "--").padEnd(20),
+        (weatherObs.layer3Amount || "--").padEnd(20),
+        (weatherObs.layer3Height || "--").padEnd(20),
+        (weatherObs.layer4Form || "--").padEnd(20),
+        (weatherObs.layer4Amount || "--").padEnd(20),
+        (weatherObs.layer4Height || "--").padEnd(20),
+        (weatherObs.rainfallTimeStart ? moment(weatherObs.rainfallTimeStart).format("MM/DD HH:mm") : "--").padEnd(20),
+        (weatherObs.rainfallTimeEnd ? moment(weatherObs.rainfallTimeEnd).format("MM/DD HH:mm") : "--").padEnd(20),
+        (weatherObs.rainfallSincePrevious || "--").padEnd(20),
+        (weatherObs.rainfallDuringPrevious || "--").padEnd(20),
+        (weatherObs.rainfallLast24Hours || "--").padEnd(20),
+        (weatherObs.windFirstAnemometer || "--").padEnd(20),
+        (weatherObs.windSecondAnemometer || "--").padEnd(20),
+        (weatherObs.windSpeed || "--").padEnd(20),
+        (weatherObs.windDirection || "--").padEnd(20),
+        (weatherObs.observerInitial || "--").padEnd(20)
+      ]
+
+      return rowData.join("")
+    })
+
+    // Combine all content
+    txtContent += rows.join("\n")
+
+    // Create download link
+    const blob = new Blob([txtContent], { type: "text/plain;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.setAttribute(
+      "download",
+      `weather_observation_${startDate}_to_${endDate}.txt`
+    )
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+
+    toast.success("TXT export started")
+  }
+
   return (
     <Card className="shadow-xl border-none overflow-hidden bg-gradient-to-br from-white to-slate-50">
       <div className="text-center font-bold text-xl border-b-2 border-indigo-600 pb-2 text-indigo-800">
@@ -733,17 +831,29 @@ const SecondCardTable = forwardRef(({ refreshTrigger = 0 }: SecondCardTableProps
           {/* Actions and Filters Section */}
           <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 md:gap-4 pt-3 md:pt-0 border-t md:border-t-0 border-slate-200">
             {/* Export Button */}
-            {session?.user?.role && ["super_admin", "station_admin"].includes(session?.user?.role) && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={exportToCSV}
-                className="flex items-center justify-center gap-2 hover:bg-green-50 border-green-200 text-green-700 w-full sm:w-auto"
-                disabled={filteredData.length === 0}
-              >
-                <Download className="h-4 w-4 flex-shrink-0" />
-                <span className="whitespace-nowrap">Export CSV</span>
-              </Button>
+            {(session?.user?.role && ["super_admin", "station_admin"].includes(session?.user?.role)) && (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={exportToCSV}
+                  className="flex items-center justify-center gap-2 hover:bg-green-50 border-green-200 text-green-700 w-full sm:w-auto"
+                  disabled={filteredData.length === 0}
+                >
+                  <Download className="h-4 w-4 flex-shrink-0" />
+                  <span className="whitespace-nowrap">Export CSV</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={exportToTXT}
+                  className="flex items-center justify-center gap-2 hover:bg-blue-50 border-blue-200 text-blue-700 w-full sm:w-auto"
+                  disabled={filteredData.length === 0}
+                >
+                  <Download className="h-4 w-4 flex-shrink-0" />
+                  <span className="whitespace-nowrap">Export TXT</span>
+                </Button>
+              </div>
             )}
 
             {/* Station Filter - Super Admin Only */}
@@ -850,19 +960,19 @@ const SecondCardTable = forwardRef(({ refreshTrigger = 0 }: SecondCardTableProps
                     <th rowSpan={3} className="border border-slate-300 bg-gradient-to-b from-sky-50 to-sky-100 p-1 text-sky-800">
                       C2 Indicator
                     </th>
-                     <th rowSpan={3} className="border border-slate-300 bg-gradient-to-b from-sky-50 to-sky-100 p-1 text-sky-800">
+                    <th rowSpan={3} className="border border-slate-300 bg-gradient-to-b from-sky-50 to-sky-100 p-1 text-sky-800">
                       DATE
                     </th>
                     <th rowSpan={3} className="border border-slate-300 bg-gradient-to-b from-sky-50 to-sky-100 p-1 text-sky-800">
                       STATION
                     </th>
-                   
+
 
                     <th colSpan={11} className="border border-slate-300 bg-gradient-to-b from-blue-50 to-blue-100 p-1 text-blue-800">
                       CLOUD
                     </th>
-                     
-                     <th rowSpan={3} className="border border-slate-300 bg-gradient-to-b from-sky-50 to-sky-100 p-1 text-sky-800">
+
+                    <th rowSpan={3} className="border border-slate-300 bg-gradient-to-b from-sky-50 to-sky-100 p-1 text-sky-800">
                       TOTAL CLOUD Amount (Octa)
                     </th>
 
@@ -929,7 +1039,7 @@ const SecondCardTable = forwardRef(({ refreshTrigger = 0 }: SecondCardTableProps
                     <th className="border border-slate-300 bg-gradient-to-b from-blue-50 to-blue-100 text-xs p-1 text-blue-800">Form (Code)</th>
                     <th className="border border-slate-300 bg-gradient-to-b from-blue-50 to-blue-100 text-xs p-1 text-blue-800">Amount (Octa)</th>
                     <th className="border border-slate-300 bg-gradient-to-b from-blue-50 to-blue-100 text-xs p-1 text-blue-800">Direction (Code)</th>
-                    
+
 
                     {/* SIGNIFICANT CLOUD */}
                     <th className="border border-slate-300 bg-gradient-to-b from-indigo-50 to-indigo-100 text-xs p-1 text-indigo-800">Form (Code)</th>
@@ -1012,7 +1122,7 @@ const SecondCardTable = forwardRef(({ refreshTrigger = 0 }: SecondCardTableProps
                               {record.station?.name + " " + record.station?.stationId || "--"}
                             </Badge>
                           </td>
-                          
+
 
                           {/* Low Cloud */}
                           <td

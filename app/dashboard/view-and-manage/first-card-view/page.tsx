@@ -647,6 +647,103 @@ const FirstCardTable = forwardRef(
       toast.success("CSV export started");
     };
 
+    // Add this function alongside your exportToCSV function
+    const exportToTXT = () => {
+      if (flattenedData.length === 0 || data.length === 0) {
+        toast.error("No data to export");
+        return;
+      }
+
+      // Create TXT header
+      let txtContent = `Meteorological Data Report\n`;
+      txtContent += `Date Range: ${startDate} to ${endDate}\n`;
+      txtContent += `Station: ${user?.station?.name || "All Stations"}\n`;
+      txtContent += `Generated: ${new Date().toLocaleString()}\n\n`;
+
+      // Create column headers
+      const headers = [
+        "Time (GMT)", "Indicator", "Date", "Station",
+        "Attached Thermometer", "Bar As Read", "Corrected for Index",
+        "Height Diff", "Station Level Pressure", "Sea Level Reduction",
+        "Sea Level Pressure", "Afternoon Reading", "24h Pressure Change",
+        "Dry Bulb", "Wet Bulb", "MAX/MIN Temp", "Dry Bulb Corrected",
+        "Wet Bulb Corrected", "MAX/MIN Corrected", "Dew Point",
+        "Relative Humid", "Squall Force", "Squall Direction", "Squall Time",
+        "Visibility", "Misc Meteors", "Past W1", "Past W2", "Present WW",
+        "C2 Indicator"
+      ];
+
+      // Format headers as fixed-width columns
+      txtContent += headers.map(h => h.padEnd(20)).join("") + "\n";
+      txtContent += "-".repeat(headers.length * 20) + "\n";
+
+      // Create TXT rows with fixed-width formatting
+      const rows = flattenedData.map((record) => {
+        const observingTime = data.find(ot => ot.id === record.observingTimeId);
+        const rowData = [
+          utcToHour(observingTime?.utcTime || "").padEnd(20),
+          (record.subIndicator || "--").padEnd(20),
+          (observingTime?.utcTime
+            ? format(new Date(observingTime.utcTime), "yyyy-MM-dd")
+            : "--").padEnd(20),
+          ((observingTime?.station?.name || "--") +
+            " " +
+            (observingTime?.station?.stationId || "--")).padEnd(20),
+          (record.alteredThermometer || "--").padEnd(20),
+          (record.barAsRead || "--").padEnd(20),
+          (record.correctedForIndex || "--").padEnd(20),
+          (record.heightDifference || "--").padEnd(20),
+          (record.stationLevelPressure || "--").padEnd(20),
+          (record.seaLevelReduction || "--").padEnd(20),
+          (record.correctedSeaLevelPressure || "--").padEnd(20),
+          (record.afternoonReading || "--").padEnd(20),
+          (record.pressureChange24h || "--").padEnd(20),
+          (record.dryBulbAsRead || "--").padEnd(20),
+          (record.wetBulbAsRead || "--").padEnd(20),
+          (record.maxMinTempAsRead || "--").padEnd(20),
+          (record.dryBulbCorrected || "--").padEnd(20),
+          (record.wetBulbCorrected || "--").padEnd(20),
+          (record.maxMinTempCorrected || "--").padEnd(20),
+          (record.Td || "--").padEnd(20),
+          (record.relativeHumidity || "--").padEnd(20),
+          (record.squallForce || "--").padEnd(20),
+          (record.squallDirection || "--").padEnd(20),
+          (record.squallTime || "--").padEnd(20),
+          (record.horizontalVisibility
+            ? (Number.parseInt(record.horizontalVisibility) % 10 === 0
+              ? (Number.parseInt(record.horizontalVisibility) / 10).toString()
+              : (Number.parseInt(record.horizontalVisibility) / 10).toFixed(1)
+            ).padEnd(20)
+            : "--".padEnd(20)),
+          (record.miscMeteors || "--").padEnd(20),
+          (record.pastWeatherW1 || "--").padEnd(20),
+          (record.pastWeatherW2 || "--").padEnd(20),
+          (record.presentWeatherWW || "--").padEnd(20),
+          (record.c2Indicator || "--").padEnd(20)
+        ];
+        return rowData.join("");
+      });
+
+      // Combine all content
+      txtContent += rows.join("\n");
+
+      // Create download link
+      const blob = new Blob([txtContent], { type: "text/plain;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `meteorological_data_${startDate}_to_${endDate}.txt`
+      );
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast.success("TXT export started");
+    };
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -978,17 +1075,30 @@ const FirstCardTable = forwardRef(
             <div className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4 pt-2 md:pt-0 border-t md:border-t-0 border-slate-200">
               {/* Export Button */}
               {(isSuperAdmin || isStationAdmin) && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={exportToCSV}
-                  className="flex items-center gap-2 hover:bg-green-50 border-green-200 text-green-700 w-full sm:w-auto justify-center sm:justify-start"
-                  disabled={flattenedData.length === 0}
-                >
-                  <Download className="h-4 w-4 flex-shrink-0" />
-                  <span className="whitespace-nowrap">Export CSV</span>
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={exportToCSV}
+                    className="flex items-center gap-2 hover:bg-green-50 border-green-200 text-green-700 w-full sm:w-auto justify-center sm:justify-start"
+                    disabled={flattenedData.length === 0}
+                  >
+                    <Download className="h-4 w-4 flex-shrink-0" />
+                    <span className="whitespace-nowrap">Export CSV</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={exportToTXT}
+                    className="flex items-center gap-2 hover:bg-blue-50 border-blue-200 text-blue-700 w-full sm:w-auto justify-center sm:justify-start"
+                    disabled={flattenedData.length === 0}
+                  >
+                    <Download className="h-4 w-4 flex-shrink-0" />
+                    <span className="whitespace-nowrap">Export TXT</span>
+                  </Button>
+                </div>
               )}
+
 
               {/* Station Filter - Super Admin Only */}
               {isSuperAdmin && (
