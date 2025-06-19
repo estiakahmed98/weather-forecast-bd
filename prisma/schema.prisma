@@ -386,3 +386,13 @@ model AgroclimatologicalData {
   @@unique([stationName, year, month])
   @@map("agroclimatological_data")
 }
+
+
+model SunshineData {
+  id        String   @id @default(cuid())
+  date      DateTime @unique
+  total     Float
+  hours     Json     // Array of 14 numbers, e.g. [0.5, 0.7, ..., 1.0]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

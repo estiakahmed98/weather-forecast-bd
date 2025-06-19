@@ -400,6 +400,7 @@ export function AgroclimatologicalFormComplete() {
                       value={formik.values.stationInfo.year}
                       onChange={formik.handleChange}
                       className="border border-slate-300 h-12 rounded-xl font-semibold"
+                      readOnly
                     />
                   </div>
                   <div className="space-y-3">
@@ -415,6 +416,7 @@ export function AgroclimatologicalFormComplete() {
                       value={formik.values.stationInfo.month}
                       onChange={formik.handleChange}
                       className="border border-slate-300 h-12 rounded-xl font-semibold"
+                      readOnly
                     />
                   </div>
                 </CardContent>
