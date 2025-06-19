@@ -6,7 +6,6 @@ import { SoilMoistureForm } from "./SoilMoistureForm/SoilMoistureForm";
 const AgroclimatologicalPage = () => {  
     return (
         <main>
-            {/* <AgroclimatologicalForm /> */}
             <SunshineTracker />
             <SoilMoistureForm/>
             <AgroclimatologicalFormComplete/>

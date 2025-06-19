@@ -84,15 +84,15 @@
 //       try {
 //         const response = await fetch('/api/soil-moisture/last-submission');
 //         const data = await response.json();
-        
+
 //         if (data.lastSubmission) {
 //           const lastSubDate = new Date(data.lastSubmission);
 //           setLastSubmission(lastSubDate);
-          
+
 //           // Check if 7 days have passed
 //           const sevenDaysAgo = new Date();
 //           sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-          
+
 //           setCanSubmit(lastSubDate < sevenDaysAgo);
 //         } else {
 //           setCanSubmit(true);
@@ -109,7 +109,7 @@
 
 //   async function handleSubmit(values: SoilMoistureData) {
 //     setIsSubmitting(true);
-    
+
 //     try {
 //       const response = await fetch('/api/soil-moisture', {
 //         method: 'POST',
@@ -141,19 +141,19 @@
 
 //   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
 //     const { name, value } = e.target;
-    
+
 //     // Only allow numeric input for certain fields
 //     if (['w1', 'w2', 'w3'].includes(name)) {
 //       if (!/^\d*\.?\d*$/.test(value)) return;
 //     }
-    
+
 //     formik.setFieldValue(name, value);
 //   };
 
 //   if (!canSubmit && lastSubmission) {
 //     const nextSubmissionDate = new Date(lastSubmission);
 //     nextSubmissionDate.setDate(nextSubmissionDate.getDate() + 7);
-    
+
 //     return (
 //       <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
 //         <h2 className="text-2xl font-bold mb-4 text-center">Submission Limit Reached</h2>
@@ -173,7 +173,7 @@
 //   return (
 //     <div className="max-w-4xl mx-auto p-6">
 //       <h1 className="text-3xl font-bold mb-6 text-center">Soil Moisture Data Collection</h1>
-      
+
 //       <form onSubmit={formik.handleSubmit} className="space-y-6">
 //         <Card className="border border-gray-200 shadow-sm">
 //           <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -357,7 +357,7 @@
 //             >
 //               <h3 className="text-xl font-bold mb-4">Confirm Submission</h3>
 //               <p className="mb-6">Please verify that all data is correct before submitting.</p>
-              
+
 //               <div className="mb-6 space-y-2">
 //                 <p><span className="font-semibold">Date:</span> {formik.values.date}</p>
 //                 <p><span className="font-semibold">Depth:</span> {formik.values.depth} cm</p>
@@ -502,7 +502,7 @@ export function SoilMoistureForm() {
 
       const Ws = w2 - w1;
       const Ds = w3 - w1;
-      const Sm = ((Ws - Ds)*100)/Ds;
+      const Sm = ((Ws - Ds) * 100) / Ds;
 
       formik.setValues({
         ...formik.values,
@@ -519,15 +519,15 @@ export function SoilMoistureForm() {
       try {
         const response = await fetch('/api/soil-moisture/last-submission');
         const data = await response.json();
-        
+
         if (data.lastSubmission) {
           const lastSubDate = new Date(data.lastSubmission);
           setLastSubmission(lastSubDate);
-          
+
           // Check if 7 days have passed
           const sevenDaysAgo = new Date();
           sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-          
+
           setCanSubmit(lastSubDate < sevenDaysAgo);
         } else {
           setCanSubmit(true);
@@ -544,7 +544,7 @@ export function SoilMoistureForm() {
 
   async function handleSubmit(values: SoilMoistureData) {
     setIsSubmitting(true);
-    
+
     try {
       const response = await fetch('/api/soil-moisture', {
         method: 'POST',
@@ -564,7 +564,7 @@ export function SoilMoistureForm() {
       }
 
       toast.success('Data submitted successfully');
-      
+
       // Move to next depth tab if available
       const currentIndex = depths.indexOf(activeTab);
       if (currentIndex < depths.length - 1) {
@@ -590,12 +590,12 @@ export function SoilMoistureForm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    
+
     // Only allow numeric input for certain fields
     if (['w1', 'w2', 'w3'].includes(name)) {
       if (!/^\d*\.?\d*$/.test(value)) return;
     }
-    
+
     formik.setFieldValue(name, value);
   };
 
@@ -625,7 +625,7 @@ export function SoilMoistureForm() {
   if (!canSubmit && lastSubmission) {
     const nextSubmissionDate = new Date(lastSubmission);
     nextSubmissionDate.setDate(nextSubmissionDate.getDate() + 7);
-    
+
     return (
       <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
         <h2 className="text-2xl font-bold mb-4 text-center">Submission Limit Reached</h2>
@@ -724,52 +724,80 @@ export function SoilMoistureForm() {
               </div>
             </div>
 
-                    {/* Station Information */}
-        <Card className="mb-6 border border-gray-200 shadow-sm">
-          <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="space-y-2">
-              <Label className="text-slate-700 font-semibold">Station Name</Label>
-              <Input
-                value={session?.user?.station?.name || "N/A"}
-                readOnly
-                className="bg-gray-100"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-slate-700 font-semibold">Latitude</Label>
-              <Input
-                value={session?.user?.station?.latitude || "N/A"}
-                readOnly
-                className="bg-gray-100"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-slate-700 font-semibold">Longitude</Label>
-              <Input
-                value={session?.user?.station?.longitude || "N/A"}
-                readOnly
-                className="bg-gray-100"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-slate-700 font-semibold">Elevation (m)</Label>
-              <Input
-                value={session?.user?.station?.elevation || "N/A"}
-                readOnly
-                className="bg-gray-100"
-              />
-            </div>
-          </CardContent>
-        </Card>
+            {/* Station Information */}
+            <Card className="mb-6 border border-gray-200 shadow-sm">
+              <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-slate-700 font-semibold">Station Name</Label>
+                  <Input
+                    value={session?.user?.station?.name || "N/A"}
+                    readOnly
+                    className="bg-gray-100"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-slate-700 font-semibold">Latitude</Label>
+                  <Input
+                    value={session?.user?.station?.latitude || "N/A"}
+                    readOnly
+                    className="bg-gray-100"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-slate-700 font-semibold">Longitude</Label>
+                  <Input
+                    value={session?.user?.station?.longitude || "N/A"}
+                    readOnly
+                    className="bg-gray-100"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-slate-700 font-semibold">Elevation (m)</Label>
+                  <Input
+                    value={session?.user?.station?.stationId || "N/A"}
+                    readOnly
+                    className="bg-gray-100"
+                  />
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Tab Content */}
             {depths.map((depth) => (
               <TabsContent key={depth} value={depth}>
                 <Card className={cn("overflow-hidden rounded-2xl border-0", tabStyles[depth as keyof typeof tabStyles].card)}>
                   <div className={cn("p-6", tabStyles[depth as keyof typeof tabStyles].header)}>
-                    <h3 className="text-xl font-bold flex items-center">
-                      <Droplets className="mr-3 w-6 h-6" /> Soil Moisture Data - {depth} cm Depth
-                    </h3>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xl font-bold flex items-center">
+                        <Droplets className="mr-3 w-6 h-6" /> Soil Moisture Data - {depth} cm Depth
+                      </h3>
+
+                      <div className="space-y-2 flex items-center justify-between">
+                        <p className="text-slate-700 font-bold w-full text-white mb-0 mr-2">Select Date</p>
+                        <div className="relative w-full">
+                          <Input
+                            type="date"
+                            id="date"
+                            name="date"
+                            value={formik.values.date}
+                            onChange={handleChange}
+                            onBlur={formik.handleBlur}
+                            className={cn( 
+                              "appearance-none", 
+                              {
+                                "border-red-500": formik.touched.date && formik.errors.date,
+                              }
+                            )}
+                          />
+                        </div>
+                        {formik.touched.date && formik.errors.date && (
+                          <div className="text-red-500 text-sm mt-1 flex items-start">
+                            <AlertCircle className="h-4 w-4 mr-1 mt-0.5 flex-shrink-0" />
+                            <span>{formik.errors.date}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                   <CardContent className="pt-8 pb-6 px-8 grid gap-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
