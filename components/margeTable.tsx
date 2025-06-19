@@ -302,7 +302,7 @@ const MargeTable = forwardRef(({ refreshTrigger = 0 }: MargeTableProps, ref) => 
         metEntry?.pastWeatherW1 || "--",
         metEntry?.pastWeatherW2 || "--",
         metEntry?.presentWeatherWW || "--",
-            // Second card data
+        // Second card data
         weatherObs?.cardIndicator || "--",
         weatherObs?.lowCloudForm || "--",
         weatherObs?.lowCloudAmount || "--",
@@ -357,6 +357,187 @@ const MargeTable = forwardRef(({ refreshTrigger = 0 }: MargeTableProps, ref) => 
 
     toast.success("CSV export started")
   }
+
+  // Add this function alongside your exportToCSV function
+  const exportToTXT = () => {
+    if (mergedData.length === 0) {
+      toast.error("No data to export")
+      return
+    }
+
+    // Create TXT content
+    const headers = [
+      "Time (GMT)",
+      "Indicator",
+      "Date",
+      "Station Name & ID",
+      "Station Name",
+      "Attached Thermometer (°C)",
+      "Bar As Read (hPa)",
+      "Corrected for Index",
+      "Height Difference Correction (hPa)",
+      "Station Level Pressure (QFE)",
+      "Sea Level Reduction",
+      "Sea Level Pressure (QNH)",
+      "Afternoon Reading",
+      "24-Hour Pressure Change",
+      "Dry Bulb As Read (°C)",
+      "Wet Bulb As Read (°C)",
+      "MAX/MIN Temp As Read (°C)",
+      "Dry Bulb Corrected (°C)",
+      "Wet Bulb Corrected (°C)",
+      "MAX/MIN Temp Corrected (°C)",
+      "Dew Point Temperature (°C)",
+      "Relative Humidity (%)",
+      "Squall Force (KTS)",
+      "Squall Direction (°)",
+      "Squall Time",
+      "Horizontal Visibility (km)",
+      "Misc Meteors (Code)",
+      "Past Weather (W₁)",
+      "Past Weather (W₂)",
+      "Present Weather (ww)",
+      "C2 Indicator",
+      "Low Cloud Form",
+      "Low Cloud Amount",
+      "Low Cloud Direction",
+      "Low Cloud Height",
+      "Medium Cloud Form",
+      "Medium Cloud Amount",
+      "Medium Cloud Direction",
+      "Medium Cloud Height",
+      "High Cloud Form",
+      "High Cloud Amount",
+      "High Cloud Direction",
+      "Total Cloud Amount",
+      "Layer1 Form",
+      "Layer1 Amount",
+      "Layer1 Height",
+      "Layer2 Form",
+      "Layer2 Amount",
+      "Layer2 Height",
+      "Layer3 Form",
+      "Layer3 Amount",
+      "Layer3 Height",
+      "Layer4 Form",
+      "Layer4 Amount",
+      "Layer4 Height",
+      "Rainfall Time Start",
+      "Rainfall Time End",
+      "Rainfall Since Previous",
+      "Rainfall During Previous",
+      "Rainfall Last 24 Hours",
+      "Wind First Anemometer",
+      "Wind Second Anemometer",
+      "Wind Speed",
+      "Wind Direction",
+      "Observer Initial",
+    ].join("\t")
+
+    // Create TXT rows
+    const rows = mergedData.map((record) => {
+      const metEntry = record.meteorologicalEntry
+      const weatherObs = record.weatherObservation
+
+      return [
+        // First card data
+        utcToHour(record.utcTime || ""),
+        metEntry?.subIndicator || "--",
+        record.utcTime ? format(new Date(record.utcTime), "yyyy-MM-dd") : "--",
+        record.station?.name + " " + record.station?.stationId || "--",
+        record.station?.name || "--",
+        metEntry?.alteredThermometer || "--",
+        metEntry?.barAsRead || "--",
+        metEntry?.correctedForIndex || "--",
+        metEntry?.heightDifference || "--",
+        metEntry?.stationLevelPressure || "--",
+        metEntry?.seaLevelReduction || "--",
+        metEntry?.correctedSeaLevelPressure || "--",
+        metEntry?.afternoonReading || "--",
+        metEntry?.pressureChange24h || "--",
+        metEntry?.dryBulbAsRead || "--",
+        metEntry?.wetBulbAsRead || "--",
+        metEntry?.maxMinTempAsRead || "--",
+        metEntry?.dryBulbCorrected || "--",
+        metEntry?.wetBulbCorrected || "--",
+        metEntry?.maxMinTempCorrected || "--",
+        metEntry?.Td || "--",
+        metEntry?.relativeHumidity || "--",
+        metEntry?.squallForce || "--",
+        metEntry?.squallDirection || "--",
+        metEntry?.squallTime || "--",
+        metEntry?.horizontalVisibility || "--",
+        metEntry?.miscMeteors || "--",
+        metEntry?.pastWeatherW1 || "--",
+        metEntry?.pastWeatherW2 || "--",
+        metEntry?.presentWeatherWW || "--",
+        // Second card data
+        weatherObs?.cardIndicator || "--",
+        weatherObs?.lowCloudForm || "--",
+        weatherObs?.lowCloudAmount || "--",
+        weatherObs?.lowCloudDirection || "--",
+        weatherObs?.lowCloudHeight || "--",
+        weatherObs?.mediumCloudForm || "--",
+        weatherObs?.mediumCloudAmount || "--",
+        weatherObs?.mediumCloudDirection || "--",
+        weatherObs?.mediumCloudHeight || "--",
+        weatherObs?.highCloudForm || "--",
+        weatherObs?.highCloudAmount || "--",
+        weatherObs?.highCloudDirection || "--",
+        weatherObs?.totalCloudAmount || "--",
+        weatherObs?.layer1Form || "--",
+        weatherObs?.layer1Amount || "--",
+        weatherObs?.layer1Height || "--",
+        weatherObs?.layer2Form || "--",
+        weatherObs?.layer2Amount || "--",
+        weatherObs?.layer2Height || "--",
+        weatherObs?.layer3Form || "--",
+        weatherObs?.layer3Amount || "--",
+        weatherObs?.layer3Height || "--",
+        weatherObs?.layer4Form || "--",
+        weatherObs?.layer4Amount || "--",
+        weatherObs?.layer4Height || "--",
+        weatherObs?.rainfallTimeStart ? moment(weatherObs.rainfallTimeStart).format("MMMM Do YYYY, h:mm") : "--",
+        weatherObs?.rainfallTimeEnd ? moment(weatherObs.rainfallTimeEnd).format("MMMM Do YYYY, h:mm") : "--",
+        weatherObs?.rainfallSincePrevious || "--",
+        weatherObs?.rainfallDuringPrevious || "--",
+        weatherObs?.rainfallLast24Hours || "--",
+        weatherObs?.windFirstAnemometer || "--",
+        weatherObs?.windSecondAnemometer || "--",
+        weatherObs?.windSpeed || "--",
+        weatherObs?.windDirection || "--",
+        weatherObs?.observerInitial || "--",
+      ].join("\t")
+    })
+
+    // Combine header and rows
+    const txtContent = [headers, ...rows].join("\n")
+
+    // Create download link
+    const blob = new Blob([txtContent], { type: "text/plain;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.setAttribute("download", `merged_meteorological_data_${startDate}_to_${endDate}.txt`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+
+    toast.success("TXT export started")
+  }
+
+  // Add this button next to your CSV export button in the JSX
+  <Button
+    variant="outline"
+    size="sm"
+    onClick={exportToTXT}
+    className="flex items-center gap-2 hover:bg-blue-50 border-blue-200 text-blue-700 w-full sm:w-auto justify-center sm:justify-start"
+    disabled={mergedData.length === 0}
+  >
+    <Download className="h-4 w-4 flex-shrink-0" />
+    <span className="whitespace-nowrap">Export TXT</span>
+  </Button>
 
   // Fetch data function for first card
   const firstCardFetchData = async () => {
@@ -633,16 +814,28 @@ const MargeTable = forwardRef(({ refreshTrigger = 0 }: MargeTableProps, ref) => 
           <div className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4 pt-2 md:pt-0 border-t md:border-t-0 border-slate-200">
             {/* Export Button */}
             {(isSuperAdmin || isStationAdmin) && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={exportToCSV}
-                className="flex items-center gap-2 hover:bg-green-50 border-green-200 text-green-700 w-full sm:w-auto justify-center sm:justify-start"
-                disabled={mergedData.length === 0}
-              >
-                <Download className="h-4 w-4 flex-shrink-0" />
-                <span className="whitespace-nowrap">Export CSV</span>
-              </Button>
+              <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={exportToCSV}
+                  className="flex items-center gap-2 hover:bg-green-50 border-green-200 text-green-700 w-full sm:w-auto justify-center sm:justify-start"
+                  disabled={mergedData.length === 0}
+                >
+                  <Download className="h-4 w-4 flex-shrink-0" />
+                  <span className="whitespace-nowrap">Export CSV</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={exportToTXT}
+                  className="flex items-center gap-2 hover:bg-blue-50 border-blue-200 text-blue-700 w-full sm:w-auto justify-center sm:justify-start"
+                  disabled={mergedData.length === 0}
+                >
+                  <Download className="h-4 w-4 flex-shrink-0" />
+                  <span className="whitespace-nowrap">Export TXT</span>
+                </Button>
+              </div>
             )}
 
             {/* Station Filter - Super Admin Only */}

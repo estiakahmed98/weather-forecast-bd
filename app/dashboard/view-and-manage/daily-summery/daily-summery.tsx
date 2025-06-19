@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Filter,
   LineChart,
+  ChevronDown,
 } from "lucide-react"
 import { useSession } from "@/lib/auth-client"
 import {
@@ -478,6 +479,54 @@ const DailySummaryTable = forwardRef((props, ref) => {
     document.body.removeChild(link)
   }
 
+  // Function to export data as TXT
+  const exportToTXT = () => {
+    if (!currentData || currentData.length === 0) return
+
+    // Create headers
+    let txtContent = `Daily Summary Data Report\n`
+    txtContent += `Station: ${headerInfo.stationNo}\n`
+    txtContent += `Date Range: ${startDate} to ${endDate}\n\n`
+
+    txtContent += `Date\tStation\tAv Station Pressure\tAv Sea-Level Pressure\tAv Dry-Bulb Temperature\tAv Wet Bulb Temperature\tMax Temperature\tMin Temperature\tTotal Precipitation\tAv Dew Point Temperature\tAv Relative Humidity\tWind Speed\tWind Direction\tMax Wind Speed\tMax Wind Direction\tAv Total Cloud\tLowest Visibility\tTotal Rain Duration\n`
+
+    // Add data rows
+    currentData.forEach((entry) => {
+      const observingTime = entry.ObservingTime?.utcTime ? new Date(entry.ObservingTime.utcTime) : new Date()
+      const dateStr = observingTime.toLocaleDateString()
+
+      let row = `${dateStr}\t`
+      row += `${entry.ObservingTime?.station?.name || ""}\t`
+      row += `${entry.avStationPressure || ""}\t`
+      row += `${entry.avSeaLevelPressure || ""}\t`
+      row += `${entry.avDryBulbTemperature || ""}\t`
+      row += `${entry.avWetBulbTemperature || ""}\t`
+      row += `${entry.maxTemperature || ""}\t`
+      row += `${entry.minTemperature || ""}\t`
+      row += `${entry.totalPrecipitation || ""}\t`
+      row += `${entry.avDewPointTemperature || ""}\t`
+      row += `${entry.avRelativeHumidity || ""}\t`
+      row += `${entry.windSpeed || ""}\t`
+      row += `${entry.windDirectionCode || ""}\t`
+      row += `${entry.maxWindSpeed || ""}\t`
+      row += `${entry.maxWindDirection || ""}\t`
+      row += `${entry.avTotalCloud || ""}\t`
+      row += `${entry.lowestVisibility || ""}\t`
+      row += `${entry.totalRainDuration || ""}\n`
+      txtContent += row
+    })
+
+    // Create download link
+    const blob = new Blob([txtContent], { type: "text/plain;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.setAttribute("href", url)
+    link.setAttribute("download", `daily_summary_${headerInfo.year}${headerInfo.month}${headerInfo.day}.txt`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
     <div className="space-y-6 print:space-y-0">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 print:hidden">
@@ -537,16 +586,28 @@ const DailySummaryTable = forwardRef((props, ref) => {
         <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 pt-3 md:pt-0 border-t md:border-t-0 border-slate-200">
           {/* Export Button - Only for admins */}
           {(isSuperAdmin || isStationAdmin) && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={exportToCSV}
-              className="flex items-center justify-center gap-2 hover:bg-blue-50 border-blue-300 text-blue-700 w-full sm:w-auto"
-              disabled={!currentData || currentData.length === 0}
-            >
-              <Download className="h-4 w-4" />
-              <span className="whitespace-nowrap text-xs sm:text-sm">Export CSV</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={exportToCSV}
+                className="flex items-center justify-center gap-2 hover:bg-blue-50 border-blue-300 text-blue-700 w-full sm:w-auto"
+                disabled={!currentData || currentData.length === 0}
+              >
+                <Download className="h-4 w-4" />
+                <span className="whitespace-nowrap text-xs sm:text-sm">Export CSV</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={exportToTXT}
+                className="flex items-center justify-center gap-2 hover:bg-blue-50 border-blue-300 text-blue-700 w-full sm:w-auto"
+                disabled={!currentData || currentData.length === 0}
+              >
+                <Download className="h-4 w-4" />
+                <span className="whitespace-nowrap text-xs sm:text-sm">Export TXT</span>
+              </Button>
+            </div>
           )}
 
           {/* Station Filter - Only for super admin */}

@@ -15,9 +15,6 @@ import badalgachhiSea from "./station_pressure_level/Badalgachhi-sea_level";
 import bandarbanStation from "./station_pressure_level/Bandarban-station_level";
 import bandarbanSea from "./station_pressure_level/Bandarban-sea_level";
 
-import barisalStation from "./station_pressure_level/BSL-station_level";
-import barisalSea from "./station_pressure_level/BSL-sea_level";
-
 import chuadangaStation from "./station_pressure_level/CDG-station_level";
 import chuadangaSea from "./station_pressure_level/CDG-sea_level";
 
@@ -82,17 +79,11 @@ import BograSea from "./station_pressure_level/Bogra-sea_level";
 import comillaStation from "./station_pressure_level/comilla-station_level";
 import comillaSea from "./station_pressure_level/comilla-sea_level";
 
-import ctgPortStation from "./station_pressure_level/ctg_port-station_level";
-import ctgPortSea from "./station_pressure_level/ctg_port-sea_level";
-
 import ctgMmoStation from "./station_pressure_level/Ctg-station_level";
 import ctgMmoSea from "./station_pressure_level/Ctg-sea_level";
 
 import isdStation from "./station_pressure_level/ISD-station_level";
 import isdSea from "./station_pressure_level/ISD-sea_level";
-
-import isdAirometStation from "./station_pressure_level/Ishurdi-station_level";
-import isdAirometSea from "./station_pressure_level/Ishurdi-sea_level";
 
 import khepuparaStation from "./station_pressure_level/kpr-station_level";
 import khepuparaSea from "./station_pressure_level/kpr-sea_level";
@@ -109,8 +100,8 @@ import MaijdeeSea from "./station_pressure_level/Maijdee-sea_level";
 import mnlStation from "./station_pressure_level/mnl-station_level";
 import mnlSea from "./station_pressure_level/mnl-sea_level";
 
-import NagStation from "./station_pressure_level/Nag-station_level";
-import NagSea from "./station_pressure_level/Nag-sea_level";
+import NarayanganjStation from "./station_pressure_level/Nag-station_level";
+import NarayanganjSea from "./station_pressure_level/Nag-sea_level";
 
 import NetrokonaStation from "./station_pressure_level/Netrokona-station_level";
 import NetrokonaSea from "./station_pressure_level/Netrokona-sea_level";
@@ -130,9 +121,6 @@ import sitSea from "./station_pressure_level/sit-sea_level";
 import SpdStation from "./station_pressure_level/Spd-station_level";
 import SpdSea from "./station_pressure_level/Spd-sea_level";
 
-import SylhetOIAStation from "./station_pressure_level/Sylhet(OIA)-station_level";
-import SylhetOIASea from "./station_pressure_level/Sylhet(OIA)-sea_level";
-
 import SylhetStation from "./station_pressure_level/SYT-station_level";
 import SylhetSea from "./station_pressure_level/SYT-sea_level";
 
@@ -144,6 +132,12 @@ import tkfSea from "./station_pressure_level/tkf-sea_level";
 
 import BHLStation from "./station_pressure_level/BHL-station_level";
 import BHLSea from "./station_pressure_level/BHL-sea_Level"
+
+import BarisalStation from "./station_pressure_level/BSL-station_level";
+import BarisalSea from "./station_pressure_level/BSL-sea_level"
+
+import RajarHatStation from "./station_pressure_level/RAJARHAT-station_level";
+import RajarHatSea from "./station_pressure_level/RAJARHAT-sea_level"
 
 export const stationDataMap = {
   [dhakaStation.station.station_no]: { station: dhakaStation, sea: dhakaSea },
@@ -160,10 +154,7 @@ export const stationDataMap = {
     station: bandarbanStation,
     sea: bandarbanSea,
   },
-  [barisalStation.station.station_no]: {
-    station: barisalStation,
-    sea: barisalSea,
-  },
+
   [chuadangaStation.station.station_no]: {
     station: chuadangaStation,
     sea: chuadangaSea,
@@ -238,10 +229,7 @@ export const stationDataMap = {
     station: comillaStation,
     sea: comillaSea,
   },
-  [ctgPortStation.station.station_no]: {
-    station: ctgPortStation,
-    sea: ctgPortSea,
-  },
+  
   [ctgMmoStation.station.station_no]: {
     station: ctgMmoStation,
     sea: ctgMmoSea,
@@ -250,10 +238,7 @@ export const stationDataMap = {
     station: isdStation,
     sea: isdSea,
   },
-  [isdAirometStation.station.station_no]: {
-    station: isdAirometStation,
-    sea: isdAirometSea,
-  },
+  
   [khepuparaStation.station.station_no]: {
     station: khepuparaStation,
     sea: khepuparaSea,
@@ -274,9 +259,9 @@ export const stationDataMap = {
     station: mnlStation,
     sea: mnlSea,
   },
-  [NagStation.station.station_no]: {
-    station: NagStation,
-    sea: NagSea,
+  [NarayanganjStation.station.station_no]: {
+    station: NarayanganjStation,
+    sea: NarayanganjSea,
   },
   [NetrokonaStation.station.station_no]: {
     station: NetrokonaStation,
@@ -302,10 +287,7 @@ export const stationDataMap = {
     station: SpdStation,
     sea: SpdSea,
   },
-  [SylhetOIAStation.station.station_no]: {
-    station: SylhetOIAStation,
-    sea: SylhetOIASea,
-  },
+
   [SylhetStation.station.station_no]: {
     station: SylhetStation,
     sea: SylhetSea,
@@ -321,6 +303,14 @@ export const stationDataMap = {
   [BHLStation.station.station_no]: {
     station: BHLStation,
     sea: BHLSea,
+  },
+  [BarisalStation.station.station_no]: {
+    station: BarisalStation,
+    sea: BarisalSea,
+  },
+  [RajarHatStation.station.station_no]: {
+    station: RajarHatStation,
+    sea: RajarHatSea,
   },
 
   
