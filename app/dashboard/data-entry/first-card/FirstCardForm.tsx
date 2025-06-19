@@ -1,7 +1,7 @@
 "use client";
 
 import * as Yup from "yup";
-import type React from "react";
+import React from "react";
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -184,39 +184,58 @@ export function FirstCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
   ];
 
   // Tab styles with gradients and more vibrant colors
+  
   const tabStyles = {
-    pressure: {
-      tab: "border border-rose-500 px-4 py-3 !bg-rose-50 text-rose-800 hover:opacity-90 shadow-sm shadow-rose-500/50",
-      card: "bg-gradient-to-br from-rose-50 to-white border-l-4 border-rose-200 shadow-sm",
-      icon: <BarChart3 className="size-5 mr-2" />,
-    },
-    temperature: {
-      tab: "border border-blue-500 px-4 py-3 !bg-blue-50 text-blue-800 hover:opacity-90 shadow-sm shadow-blue-500/50",
-      card: "bg-gradient-to-br from-blue-50 to-white border-l-4 border-blue-200 shadow-sm",
-      icon: <Thermometer className="size-5 mr-2" />,
-    },
-    squall: {
-      tab: "border border-amber-500 px-4 py-3 !bg-amber-50 text-amber-800 hover:opacity-90 shadow-sm shadow-amber-500/50",
-      card: "bg-gradient-to-br from-amber-50 to-white border-l-4 border-amber-200 shadow-sm",
-      icon: <Wind className="size-5 mr-2" />,
-    },
-    "V.V": {
-      tab: "border border-orange-500 px-4 py-3 !bg-orange-50 text-orange-800 hover:opacity-90 shadow-sm shadow-orange-500/50",
-      card: "bg-gradient-to-br from-orange-50 to-white border-l-4 border-orange-200 shadow-sm",
-      icon: <Eye className="size-5 mr-2" />,
-    },
-    meteors: {
-      tab: "border border-emerald-600 px-4 py-3 !bg-emerald-50 text-emerald-800 hover:bg-emerald-100 shadow-sm shadow-emerald-400/50",
-      card: "bg-gradient-to-br from-emerald-50 via-white to-white border-l-4 border-emerald-300 shadow-sm",
-      icon: <Flame className="size-5 mr-2 text-emerald-500" />,
-    },
-
-    weather: {
-      tab: "border border-cyan-500 px-4 py-3 !bg-cyan-50 text-cyan-800 hover:opacity-90 shadow-sm shadow-cyan-500/50",
-      card: "bg-gradient-to-br from-cyan-50 to-white border-l-4 border-cyan-200 shadow-sm",
-      icon: <Cloud className="size-5 mr-2" />,
-    },
-  };
+  pressure: {
+    tab: "from-rose-500 to-rose-600",
+    icon: <BarChart3 className="w-4 h-4" />,
+    iconColor: "text-rose-500",
+    iconBg: "from-rose-100 to-rose-50",
+    // Preserve your existing styles
+    originalTab: "border border-rose-500 px-4 py-3 !bg-rose-50 text-rose-800 hover:opacity-90 shadow-sm shadow-rose-500/50",
+    card: "bg-gradient-to-br from-rose-50 to-white border-l-4 border-rose-200 shadow-sm"
+  },
+  temperature: {
+    tab: "from-blue-500 to-blue-600",
+    icon: <Thermometer className="w-4 h-4" />,
+    iconColor: "text-blue-500",
+    iconBg: "from-blue-100 to-blue-50",
+    originalTab: "border border-blue-500 px-4 py-3 !bg-blue-50 text-blue-800 hover:opacity-90 shadow-sm shadow-blue-500/50",
+    card: "bg-gradient-to-br from-blue-50 to-white border-l-4 border-blue-200 shadow-sm"
+  },
+  squall: {
+    tab: "from-amber-500 to-amber-600",
+    icon: <Wind className="w-4 h-4" />,
+    iconColor: "text-amber-500",
+    iconBg: "from-amber-100 to-amber-50",
+    originalTab: "border border-amber-500 px-4 py-3 !bg-amber-50 text-amber-800 hover:opacity-90 shadow-sm shadow-amber-500/50",
+    card: "bg-gradient-to-br from-amber-50 to-white border-l-4 border-amber-200 shadow-sm"
+  },
+  "V.V": {
+    tab: "from-orange-500 to-orange-600",
+    icon: <Eye className="w-4 h-4" />,
+    iconColor: "text-orange-500",
+    iconBg: "from-orange-100 to-orange-50",
+    originalTab: "border border-orange-500 px-4 py-3 !bg-orange-50 text-orange-800 hover:opacity-90 shadow-sm shadow-orange-500/50",
+    card: "bg-gradient-to-br from-orange-50 to-white border-l-4 border-orange-200 shadow-sm"
+  },
+  meteors: {
+    tab: "from-emerald-500 to-emerald-600",
+    icon: <Flame className="w-4 h-4 text-emerald-500" />,
+    iconColor: "text-emerald-500",
+    iconBg: "from-emerald-100 to-emerald-50",
+    originalTab: "border border-emerald-600 px-4 py-3 !bg-emerald-50 text-emerald-800 hover:bg-emerald-100 shadow-sm shadow-emerald-400/50",
+    card: "bg-gradient-to-br from-emerald-50 via-white to-white border-l-4 border-emerald-300 shadow-sm"
+  },
+  weather: {
+    tab: "from-cyan-500 to-cyan-600",
+    icon: <Cloud className="w-4 h-4" />,
+    iconColor: "text-cyan-500",
+    iconBg: "from-cyan-100 to-cyan-50",
+    originalTab: "border border-cyan-500 px-4 py-3 !bg-cyan-50 text-cyan-800 hover:opacity-90 shadow-sm shadow-cyan-500/50",
+    card: "bg-gradient-to-br from-cyan-50 to-white border-l-4 border-cyan-200 shadow-sm"
+  }
+};
 
   // Initialize Formik
   const formik = useFormik({
@@ -1043,43 +1062,96 @@ export function FirstCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
                 onValueChange={handleTabChange}
                 className="w-full"
               >
-                <TabsList className="grid w-full grid-cols-2 mb-20 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3 rounded-xl p-1 border-0 bg-transparent">
-                  {Object.entries(tabStyles).map(([key, style]) => (
-                    <TabsTrigger
-                      key={key}
-                      value={key}
-                      disabled={Boolean(timeData?.time)}
-                      className={cn(
-                        "flex flex-col items-center justify-center border border-gray-300 text-xs sm:text-sm px-2 py-1 md:py-2",
-                        {
-                          [style.tab]: activeTab === key,
-                          "!border-red-500 !text-red-700":
-                            !isTabValid(key) && formik.submitCount > 0,
-                        }
-                      )}
-                      onClick={(e) => {
-                        if (activeTab !== key && !validateTab(activeTab)) {
-                          e.preventDefault();
-                          toast.error(
-                            "অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন",
-                            {
-                              description:
-                                "অন্য ট্যাবে যাওয়ার আগে বর্তমান ট্যাবের সকল তথ্য পূরণ করুন",
-                            }
-                          );
-                          return false;
-                        }
-                      }}
-                    >
-                      <div className="flex items-center justify-center gap-1">
-                        {style.icon}
-                        <span className="hidden sm:inline">
-                          {key === "V.V" ? "VV" : key}
-                        </span>
-                      </div>
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
+              
+
+                <div className="relative mb-8 p-4">
+                  <div className="relative p-1 bg-white/80 backdrop-blur-sm rounded-full shadow-lg border border-gray-200/50 max-w-max mx-auto">
+                    <div className="relative flex flex-wrap justify-center items-center gap-1 p-1.5 rounded-full bg-gray-100/50">
+                      {Object.entries(tabStyles).map(([key, style], index) => {
+                        const isActive = activeTab === key;
+                        const iconColor = style.iconColor || "text-blue-500";
+
+                        return (
+                          <motion.button
+                            key={key}
+                            type="button"
+                            onClick={() => {
+                              if (
+                                activeTab !== key &&
+                                !validateTab(activeTab)
+                              ) {
+                                toast.error("Complete required fields", {
+                                  description:
+                                    "Please fill all required information before switching tabs",
+                                });
+                                return false;
+                              }
+                              handleTabChange(key);
+                            }}
+                            disabled={Boolean(timeData?.time)}
+                            className={cn(
+                              "relative flex items-center justify-center px-6 py-2 rounded-full transition-all duration-300 transform",
+                              "focus:outline-none min-w-[80px]",
+                              isActive
+                                ? "bg-white shadow shadow-blue-300 text-gray-900 font-semibold"
+                                : "text-gray-600 hover:text-gray-800 hover:bg-white/50",
+                              !isTabValid(key) &&
+                                formik.submitCount > 0 &&
+                                "!border-2 !border-red-400 !bg-red-50"
+                            )}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{
+                              opacity: 1,
+                              x: 0,
+                              scale: isActive ? 1.05 : 1,
+                            }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 300,
+                              damping: 20,
+                              delay: index * 0.05,
+                            }}
+                          >
+                            <div className="relative z-10 flex items-center gap-1">
+                              <div
+                                className={cn(
+                                  "p-1.5 rounded-full transition-all duration-200",
+                                  {
+                                    "scale-110": isActive,
+                                    [iconColor]: !isActive,
+                                    "bg-white/20": isActive,
+                                  }
+                                )}
+                              >
+                                {React.cloneElement(style.icon, {
+                                  className: cn("w-4 h-4", {
+                                    "text-blue-500": isActive,
+                                    [iconColor]: !isActive,
+                                  }),
+                                })}
+                              </div>
+                              <span className="text-base capitalize font-medium">
+                                {key === "V.V" ? "VV" : key}
+                              </span>
+                            </div>
+
+                            {isActive && (
+                              <motion.div
+                                className="absolute inset-0 bg-white rounded-full border border-gray-200 z-0"
+                                layoutId="activePill"
+                                transition={{
+                                  type: "spring",
+                                  bounce: 0.2,
+                                  duration: 0.6,
+                                }}
+                              />
+                            )}
+                          </motion.button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
 
                 {/* Bar Pressure Tab */}
                 <TabsContent

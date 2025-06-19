@@ -13,6 +13,7 @@ import { toast } from "sonner"
 import { useFormik } from "formik"
 import { motion } from "framer-motion"
 import * as Yup from "yup"
+import { useSession } from "@/lib/auth-client"
 
 // Enhanced validation schema with all fields
 const validationSchema = Yup.object({
@@ -73,6 +74,9 @@ export interface AgroclimatologicalFormData {
 export function AgroclimatologicalFormComplete() {
   const [activeTab, setActiveTab] = useState("station")
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const { data: session } = useSession()
+  
 
   // Enhanced tab order with new sections
   const tabOrder = ["station", "solar", "temperature", "soil", "humidity", "weather", "summary"]
@@ -330,12 +334,14 @@ export function AgroclimatologicalFormComplete() {
                     <Input
                       id="stationName"
                       name="stationInfo.stationName"
-                      value={formik.values.stationInfo.stationName}
+                      value={session?.user?.station?.name || formik.values.stationInfo.stationName}
                       onChange={formik.handleChange}
-                      className="border-2 border-slate-200 h-12 rounded-xl"
+                      className="border border-slate-300 h-12 rounded-xl font-semibold"
                       placeholder="Enter station name"
+                      readOnly
                     />
                   </div>
+                  
                   <div className="space-y-3">
                     <Label htmlFor="latitude" className="text-slate-700 font-semibold">
                       Latitude (°) *
@@ -345,10 +351,11 @@ export function AgroclimatologicalFormComplete() {
                       name="stationInfo.latitude"
                       type="number"
                       step="0.0001"
-                      value={formik.values.stationInfo.latitude}
+                      value={session?.user.station?.latitude || formik.values.stationInfo.latitude}
                       onChange={formik.handleChange}
-                      className="border-2 border-slate-200 h-12 rounded-xl"
+                      className="border border-slate-300 h-12 rounded-xl font-semibold"
                       placeholder="e.g., 23.7104"
+                      readOnly
                     />
                   </div>
                   <div className="space-y-3">
@@ -360,10 +367,11 @@ export function AgroclimatologicalFormComplete() {
                       name="stationInfo.longitude"
                       type="number"
                       step="0.0001"
-                      value={formik.values.stationInfo.longitude}
+                      value={session?.user.station?.longitude || formik.values.stationInfo.longitude}
                       onChange={formik.handleChange}
-                      className="border-2 border-slate-200 h-12 rounded-xl"
+                      className="border border-slate-300 h-12 rounded-xl font-semibold"
                       placeholder="e.g., 90.4074"
+                      readOnly
                     />
                   </div>
                   <div className="space-y-3">
@@ -375,9 +383,9 @@ export function AgroclimatologicalFormComplete() {
                       name="stationInfo.elevation"
                       type="number"
                       step="0.01"
-                      value={formik.values.stationInfo.elevation}
+                      value={ formik.values.stationInfo.elevation}
                       onChange={formik.handleChange}
-                      className="border-2 border-slate-200 h-12 rounded-xl"
+                      className="border border-slate-300 h-12 rounded-xl font-semibold"
                       placeholder="e.g., 21.95"
                     />
                   </div>
@@ -391,7 +399,7 @@ export function AgroclimatologicalFormComplete() {
                       type="number"
                       value={formik.values.stationInfo.year}
                       onChange={formik.handleChange}
-                      className="border-2 border-slate-200 h-12 rounded-xl"
+                      className="border border-slate-300 h-12 rounded-xl font-semibold"
                     />
                   </div>
                   <div className="space-y-3">
@@ -406,7 +414,7 @@ export function AgroclimatologicalFormComplete() {
                       max="12"
                       value={formik.values.stationInfo.month}
                       onChange={formik.handleChange}
-                      className="border-2 border-slate-200 h-12 rounded-xl"
+                      className="border border-slate-300 h-12 rounded-xl font-semibold"
                     />
                   </div>
                 </CardContent>
@@ -440,7 +448,7 @@ export function AgroclimatologicalFormComplete() {
                         step="0.1"
                         value={formik.values.solarRadiation}
                         onChange={handleNumericInput}
-                        className="border-2 border-slate-200 h-12 rounded-xl"
+                        className="border border-slate-300 h-12 rounded-xl"
                         placeholder="Enter solar radiation"
                       />
                     </div>
@@ -454,7 +462,7 @@ export function AgroclimatologicalFormComplete() {
                         max="24"
                         value={formik.values.sunShineHour}
                         onChange={handleNumericInput}
-                        className="border-2 border-slate-200 h-12 rounded-xl"
+                        className="border border-slate-300 h-12 rounded-xl"
                         placeholder="Enter sunshine hours"
                       />
                     </div>
@@ -521,7 +529,7 @@ export function AgroclimatologicalFormComplete() {
                                   ""
                                 }
                                 onChange={handleNumericInput}
-                                className="border-2 border-slate-200 h-10 rounded-lg"
+                                className="border border-slate-300 h-10 rounded-lg"
                               />
                             </div>
                             <div className="space-y-2">
@@ -535,7 +543,7 @@ export function AgroclimatologicalFormComplete() {
                                   ""
                                 }
                                 onChange={handleNumericInput}
-                                className="border-2 border-slate-200 h-10 rounded-lg"
+                                className="border border-slate-300 h-10 rounded-lg"
                               />
                             </div>
                           </div>
@@ -555,7 +563,7 @@ export function AgroclimatologicalFormComplete() {
                             step="0.1"
                             value={formik.values.minTemp}
                             onChange={handleNumericInput}
-                            className="border-2 border-slate-200 h-10 rounded-lg"
+                            className="border border-slate-300 h-10 rounded-lg"
                           />
                         </div>
                         <div className="space-y-2">
@@ -566,7 +574,7 @@ export function AgroclimatologicalFormComplete() {
                             step="0.1"
                             value={formik.values.maxTemp}
                             onChange={handleNumericInput}
-                            className="border-2 border-slate-200 h-10 rounded-lg"
+                            className="border border-slate-300 h-10 rounded-lg"
                           />
                         </div>
                         <div className="space-y-2">
@@ -577,7 +585,7 @@ export function AgroclimatologicalFormComplete() {
                             step="0.1"
                             value={formik.values.grassMinTemp}
                             onChange={handleNumericInput}
-                            className="border-2 border-slate-200 h-10 rounded-lg"
+                            className="border border-slate-300 h-10 rounded-lg"
                           />
                         </div>
                       </div>
@@ -632,7 +640,7 @@ export function AgroclimatologicalFormComplete() {
                                 formik.values.soilTemperature[key as keyof typeof formik.values.soilTemperature] || ""
                               }
                               onChange={handleNumericInput}
-                              className="border-2 border-slate-200 h-10 rounded-lg"
+                              className="border border-slate-300 h-10 rounded-lg"
                             />
                           </div>
                         ))}
@@ -652,7 +660,7 @@ export function AgroclimatologicalFormComplete() {
                             max="100"
                             value={formik.values.soilMoisture.depth0to20cm}
                             onChange={handleNumericInput}
-                            className="border-2 border-slate-200 h-10 rounded-lg"
+                            className="border border-slate-300 h-10 rounded-lg"
                             placeholder="0-100%"
                           />
                         </div>
@@ -665,7 +673,7 @@ export function AgroclimatologicalFormComplete() {
                             max="100"
                             value={formik.values.soilMoisture.depth20to50cm}
                             onChange={handleNumericInput}
-                            className="border-2 border-slate-200 h-10 rounded-lg"
+                            className="border border-slate-300 h-10 rounded-lg"
                             placeholder="0-100%"
                           />
                         </div>
@@ -706,7 +714,7 @@ export function AgroclimatologicalFormComplete() {
                         step="0.1"
                         value={formik.values.panWaterEvap}
                         onChange={handleNumericInput}
-                        className="border-2 border-slate-200 h-10 rounded-lg"
+                        className="border border-slate-300 h-10 rounded-lg"
                       />
                     </div>
 
@@ -718,7 +726,7 @@ export function AgroclimatologicalFormComplete() {
                         step="0.1"
                         value={formik.values.evaporation}
                         onChange={handleNumericInput}
-                        className="border-2 border-slate-200 h-10 rounded-lg"
+                        className="border border-slate-300 h-10 rounded-lg"
                       />
                     </div>
 
@@ -730,7 +738,7 @@ export function AgroclimatologicalFormComplete() {
                         step="0.1"
                         value={formik.values.dewPoint}
                         onChange={handleNumericInput}
-                        className="border-2 border-slate-200 h-10 rounded-lg"
+                        className="border border-slate-300 h-10 rounded-lg"
                       />
                     </div>
                   </div>
@@ -768,7 +776,7 @@ export function AgroclimatologicalFormComplete() {
                         step="0.1"
                         value={formik.values.windSpeed}
                         onChange={handleNumericInput}
-                        className="border-2 border-slate-200 h-10 rounded-lg"
+                        className="border border-slate-300 h-10 rounded-lg"
                       />
                     </div>
 
@@ -780,7 +788,7 @@ export function AgroclimatologicalFormComplete() {
                         step="0.1"
                         value={formik.values.rainfall}
                         onChange={handleNumericInput}
-                        className="border-2 border-slate-200 h-10 rounded-lg"
+                        className="border border-slate-300 h-10 rounded-lg"
                       />
                     </div>
 
@@ -793,7 +801,7 @@ export function AgroclimatologicalFormComplete() {
                         max="24"
                         value={formik.values.duration}
                         onChange={handleNumericInput}
-                        className="border-2 border-slate-200 h-10 rounded-lg"
+                        className="border border-slate-300 h-10 rounded-lg"
                       />
                     </div>
 
@@ -805,7 +813,7 @@ export function AgroclimatologicalFormComplete() {
                         step="0.1"
                         value={formik.values.rainfall}
                         onChange={handleNumericInput}
-                        className="border-2 border-slate-200 h-10 rounded-lg"
+                        className="border border-slate-300 h-10 rounded-lg"
                       />
                     </div>
                   </div>
