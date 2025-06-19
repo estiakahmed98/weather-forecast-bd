@@ -40,7 +40,30 @@ model users {
   actorUser     logs[]          @relation("ActorUser")
   targetUser    logs[]          @relation("TargetUser")
   agroclimatologicalData AgroclimatologicalData[] // Added relation field
+  soilMoistureData SoilMoistureData[]
 
+}
+
+model SoilMoistureData {
+  id          String   @id @default(cuid())
+  date        DateTime
+  depth       Int
+  w1          Float
+  w2          Float
+  w3          Float
+  Ws          Float    
+  Ds          Float    
+  Sm          Float    
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  stationId   String
+  station     Station  @relation(fields: [stationId], references: [id])
+  userId      String
+  user        users    @relation(fields: [userId], references: [id])
+
+  @@unique([date, depth, stationId])
 }
 
 model sessions {
@@ -132,6 +155,7 @@ model Station {
   updatedAt     DateTime        @updatedAt
   users         users[]
   ObservingTime ObservingTime[]
+  soilMoistureData SoilMoistureData[]
 }
 
 model ObservingTime {
