@@ -9,11 +9,11 @@ import {
   BarChart,
   Menu,
   ChevronLeft,
-  Codesandbox,
   Binoculars,
   CloudHail,
   Users,
   CloudFog,
+  Monitor,
   Settings,
   PencilIcon,
   ChevronDown,
@@ -21,6 +21,7 @@ import {
   FileBarChart,
   X,
   Leaf,
+  Code2,
 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import {
@@ -128,7 +129,7 @@ const Sidebar = () => {
           label: "Second Card",
         },
         {
-          icon: <Codesandbox className="w-5 h-5" />,
+          icon: <Code2 className="w-5 h-5" />,
           href: "/dashboard/data-entry/synoptic-code",
           label: "Synoptic Code",
         },
@@ -160,7 +161,7 @@ const Sidebar = () => {
           label: "Second Card",
         },
         {
-          icon: <Codesandbox className="w-5 h-5" />,
+          icon: <Code2 className="w-5 h-5" />,
           href: "/dashboard/view-and-manage/synoptic-code",
           label: "Synoptic Code",
         },
@@ -186,6 +187,12 @@ const Sidebar = () => {
       href: "/dashboard/stations",
       icon: <CloudFog className="w-5 h-5" />,
       label: "Station Management",
+      roles: ["super_admin"],
+    },
+    {
+      href: "/dashboard/netcdf-visualizer",
+      icon: <Monitor className="w-5 h-5" />,
+      label: "NetCDF Visualizer",
       roles: ["super_admin"],
     },
     {
