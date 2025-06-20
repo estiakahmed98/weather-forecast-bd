@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Upload, FileText, Activity, LineChart, ScatterChart, Gauge, Map, BoxSelect, Box } from "lucide-react"
 import dynamic from "next/dynamic"
 import { saveAs } from 'file-saver';
+import type { Data, Layout, PlotData } from 'plotly.js';
 
 // Dynamic imports for heavy visualization libraries
 const Plot = dynamic(() => import("react-plotly.js"), {
@@ -86,84 +87,72 @@ export default function NetCDFVisualizer() {
     }
   }
 
-  const preparePlotData = () => {
-    if (!selectedVariable || !ncData) return null
-
-    const variable = ncData.variables[selectedVariable]
-    const data = variable.data
-
+  const preparePlotData = (): Data[] | null => {
+    if (!selectedVariable || !ncData) return null;
+  
+    const variable = ncData.variables[selectedVariable];
+    const data = variable.data;
+  
     switch (plotType) {
       case "line":
-        return [
-          {
-            type: "scatter",
-            mode: "lines+markers",
-            x: Array.from({ length: data.length }, (_, i) => i),
-            y: data,
-            name: selectedVariable,
-            line: { color: "#3b82f6" },
-          },
-        ]
-
+        return [{
+          type: "scatter",
+          mode: "lines+markers",
+          x: Array.from({ length: data.length }, (_, i) => i),
+          y: data,
+          name: selectedVariable,
+          line: { color: "#3b82f6" },
+        } as PlotData];
+  
       case "scatter":
-        return [
-          {
-            type: "scatter",
-            mode: "markers",
-            x: Array.from({ length: data.length }, (_, i) => i),
-            y: data,
-            name: selectedVariable,
-            marker: { color: "#3b82f6", size: 4 },
-          },
-        ]
-
+        return [{
+          type: "scatter",
+          mode: "markers",
+          x: Array.from({ length: data.length }, (_, i) => i),
+          y: data,
+          name: selectedVariable,
+          marker: { color: "#3b82f6", size: 4 },
+        } as PlotData];
+  
       case "histogram":
-        return [
-          {
-            type: "histogram",
-            x: data,
-            name: selectedVariable,
-            marker: { color: "#3b82f6" },
-          },
-        ]
-
+        return [{
+          type: "histogram",
+          x: data,
+          name: selectedVariable,
+          marker: { color: "#3b82f6" },
+        } as PlotData];
+  
       case "heatmap":
-        const reshaped = reshapeTo2D(data, variable.dimensions)
-        return [
-          {
-            type: "heatmap",
-            z: reshaped,
-            name: selectedVariable,
-            colorscale: "Viridis",
-          },
-        ]
-
+        const reshaped = reshapeTo2D(data, variable.dimensions);
+        return [{
+          type: "heatmap",
+          z: reshaped,
+          name: selectedVariable,
+          colorscale: "Viridis",
+        } as PlotData];
+  
       case "contour":
-        const contourData = reshapeTo2D(data, variable.dimensions)
-        return [
-          {
-            type: "contour",
-            z: contourData,
-            name: selectedVariable,
-            colorscale: "Viridis",
-          },
-        ]
-
+        const contourData = reshapeTo2D(data, variable.dimensions);
+        return [{
+          type: "contour",
+          z: contourData,
+          name: selectedVariable,
+          colorscale: "Viridis",
+        } as PlotData];
+  
       case "surface":
-        const surfaceData = reshapeTo2D(data, variable.dimensions)
-        return [
-          {
-            type: "surface",
-            z: surfaceData,
-            name: selectedVariable,
-            colorscale: "Viridis",
-          },
-        ]
-
+        const surfaceData = reshapeTo2D(data, variable.dimensions);
+        return [{
+          type: "surface",
+          z: surfaceData,
+          name: selectedVariable,
+          colorscale: "Viridis",
+        } as PlotData];
+  
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   const reshapeTo2D = (data: number[], dims: string[]) => {
     if (!ncData?.metadata.dimensions) return [data]
@@ -194,8 +183,8 @@ export default function NetCDFVisualizer() {
     return [data]
   }
 
-  const getPlotLayout = () => {
-    const baseLayout = {
+  const getPlotLayout = (): Partial<Layout> => {
+    const baseLayout: Partial<Layout> = {
       title: {
         text: selectedVariable,
         font: { size: 16 },
@@ -204,46 +193,46 @@ export default function NetCDFVisualizer() {
       margin: { l: 60, r: 40, b: 60, t: 80, pad: 4 },
       paper_bgcolor: "rgba(0,0,0,0)",
       plot_bgcolor: "rgba(0,0,0,0)",
-    }
-
+    };
+  
     switch (plotType) {
       case "surface":
         return {
           ...baseLayout,
           scene: {
-            xaxis: { title: "X" },
-            yaxis: { title: "Y" },
-            zaxis: { title: selectedVariable },
+            xaxis: { title: { text: "X" } },
+            yaxis: { title: { text: "Y" } },
+            zaxis: { title: { text: selectedVariable } },
           },
-        }
+        };
       case "heatmap":
       case "contour":
         return {
           ...baseLayout,
-          xaxis: { title: "X Index" },
-          yaxis: { title: "Y Index" },
-        }
+          xaxis: { title: { text: "X Index" } },
+          yaxis: { title: { text: "Y Index" } },
+        };
       case "histogram":
         return {
           ...baseLayout,
-          xaxis: { title: selectedVariable },
-          yaxis: { title: "Frequency" },
-        }
+          xaxis: { title: { text: selectedVariable } },
+          yaxis: { title: { text: "Frequency" } },
+        };
       default:
         return {
           ...baseLayout,
-          xaxis: { title: "Index" },
-          yaxis: { title: selectedVariable },
-        }
+          xaxis: { title: { text: "Index" } },
+          yaxis: { title: { text: selectedVariable } },
+        };
     }
-  }
+  };
 
   const renderVisualization = () => {
-    if (!selectedVariable || !ncData) return null
-
-    const plotData = preparePlotData()
-    if (!plotData) return null
-
+    if (!selectedVariable || !ncData) return null;
+  
+    const plotData = preparePlotData();
+    if (!plotData) return null;
+  
     return (
       <div className="w-full h-96">
         <Plot
@@ -258,8 +247,8 @@ export default function NetCDFVisualizer() {
           }}
         />
       </div>
-    )
-  }
+    );
+  };
 
   const getVariableInfo = (varName: string) => {
     if (!ncData) return null
