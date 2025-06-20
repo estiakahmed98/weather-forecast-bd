@@ -1,400 +1,7 @@
-// // components/SoilMoistureForm.tsx
-// "use client";
-
-// import * as Yup from "yup";
-// import React, { useState, useEffect } from "react";
-// import { Card, CardContent, CardFooter } from "@/components/ui/card";
-// import { Input } from "@/components/ui/input";
-// import { Label } from "@/components/ui/label";
-// import { Button } from "@/components/ui/button";
-// import { cn } from "@/lib/utils";
-// import { AlertCircle, ChevronRight, ChevronLeft } from "lucide-react";
-// import { toast } from "sonner";
-// import { useSession } from "@/lib/auth-client";
-// import { useFormik } from "formik";
-// import { AnimatePresence, motion } from "framer-motion";
-// import { useRouter } from "next/navigation";
-
-// // Validation schema
-// const validationSchema = Yup.object({
-//   date: Yup.date().required("Date is required"),
-//   depth: Yup.string().required("Depth is required"),
-//   w1: Yup.number().required("W₁ is required").positive(),
-//   w2: Yup.number().required("W₂ is required").positive(),
-//   w3: Yup.number().required("W₃ is required").positive(),
-// });
-
-// interface SoilMoistureData {
-//   date: string;
-//   depth: string;
-//   w1: string;
-//   w2: string;
-//   w3: string;
-//   Ws: string;
-//   Ds: string;
-//   Sm: string;
-// }
-
-// export function SoilMoistureForm() {
-//   const router = useRouter();
-//   const { data: session } = useSession();
-//   const [isSubmitting, setIsSubmitting] = useState(false);
-//   const [canSubmit, setCanSubmit] = useState(true);
-//   const [lastSubmission, setLastSubmission] = useState<Date | null>(null);
-//   const [showConfirmation, setShowConfirmation] = useState(false);
-
-//   const formik = useFormik({
-//     initialValues: {
-//       date: new Date().toISOString().split('T')[0],
-//       depth: '5',
-//       w1: '',
-//       w2: '',
-//       w3: '',
-//       Ws: '',
-//       Ds: '',
-//       Sm: '',
-//     },
-//     validationSchema,
-//     onSubmit: handleSubmit,
-//   });
-
-//   // Calculate derived values whenever inputs change
-//   useEffect(() => {
-//     if (formik.values.w1 && formik.values.w2 && formik.values.w3) {
-//       const w1 = parseFloat(formik.values.w1);
-//       const w2 = parseFloat(formik.values.w2);
-//       const w3 = parseFloat(formik.values.w3);
-
-//       const Ws = w2 - w1;
-//       const Ds = w3 - w1;
-//       const Sm = ((Ws - Ds)*100)/Ds;
-
-//       formik.setValues({
-//         ...formik.values,
-//         Ws: Ws.toFixed(3),
-//         Ds: Ds.toFixed(3),
-//         Sm: Sm.toFixed(3),
-//       });
-//     }
-//   }, [formik.values.w1, formik.values.w2, formik.values.w3]);
-
-//   // Check submission eligibility
-//   useEffect(() => {
-//     const checkSubmissionStatus = async () => {
-//       try {
-//         const response = await fetch('/api/soil-moisture/last-submission');
-//         const data = await response.json();
-
-//         if (data.lastSubmission) {
-//           const lastSubDate = new Date(data.lastSubmission);
-//           setLastSubmission(lastSubDate);
-
-//           // Check if 7 days have passed
-//           const sevenDaysAgo = new Date();
-//           sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-//           setCanSubmit(lastSubDate < sevenDaysAgo);
-//         } else {
-//           setCanSubmit(true);
-//         }
-//       } catch (error) {
-//         console.error('Error checking submission status:', error);
-//       }
-//     };
-
-//     if (session) {
-//       checkSubmissionStatus();
-//     }
-//   }, [session]);
-
-//   async function handleSubmit(values: SoilMoistureData) {
-//     setIsSubmitting(true);
-
-//     try {
-//       const response = await fetch('/api/soil-moisture', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify({
-//           ...values,
-//           stationId: session?.user?.station?.id,
-//         }),
-//       });
-
-//       const data = await response.json();
-
-//       if (!response.ok) {
-//         throw new Error(data.message || 'Submission failed');
-//       }
-
-//       toast.success('Data submitted successfully');
-//     } catch (error) {
-//       console.error('Submission error:', error);
-//       toast.error('Failed to submit data', {
-//         description: error instanceof Error ? error.message : 'Unknown error',
-//       });
-//     } finally {
-//       setIsSubmitting(false);
-//     }
-//   }
-
-//   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-//     const { name, value } = e.target;
-
-//     // Only allow numeric input for certain fields
-//     if (['w1', 'w2', 'w3'].includes(name)) {
-//       if (!/^\d*\.?\d*$/.test(value)) return;
-//     }
-
-//     formik.setFieldValue(name, value);
-//   };
-
-//   if (!canSubmit && lastSubmission) {
-//     const nextSubmissionDate = new Date(lastSubmission);
-//     nextSubmissionDate.setDate(nextSubmissionDate.getDate() + 7);
-
-//     return (
-//       <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-//         <h2 className="text-2xl font-bold mb-4 text-center">Submission Limit Reached</h2>
-//         <p className="mb-4 text-center">
-//           Soil moisture data can only be submitted once every 7 days.
-//         </p>
-//         <p className="text-center">
-//           Your next submission will be available on: {' '}
-//           <span className="font-semibold">
-//             {nextSubmissionDate.toLocaleDateString()}
-//           </span>
-//         </p>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="max-w-4xl mx-auto p-6">
-//       <h1 className="text-3xl font-bold mb-6 text-center">Soil Moisture Data Collection</h1>
-
-//       <form onSubmit={formik.handleSubmit} className="space-y-6">
-//         <Card className="border border-gray-200 shadow-sm">
-//           <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-//             <div className="space-y-2">
-//               <Label htmlFor="date">Date</Label>
-//               <Input
-//                 type="date"
-//                 id="date"
-//                 name="date"
-//                 value={formik.values.date}
-//                 onChange={handleChange}
-//                 onBlur={formik.handleBlur}
-//                 className={cn({
-//                   'border-red-500': formik.touched.date && formik.errors.date,
-//                 })}
-//               />
-//               {formik.touched.date && formik.errors.date && (
-//                 <div className="text-red-500 text-sm mt-1 flex items-start">
-//                   <AlertCircle className="h-4 w-4 mr-1 mt-0.5 flex-shrink-0" />
-//                   <span>{formik.errors.date}</span>
-//                 </div>
-//               )}
-//             </div>
-
-//             <div className="space-y-2">
-//               <Label htmlFor="depth">Depth (cm)</Label>
-//               <select
-//                 id="depth"
-//                 name="depth"
-//                 value={formik.values.depth}
-//                 onChange={handleChange}
-//                 onBlur={formik.handleBlur}
-//                 className={cn(
-//                   "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-//                   {
-//                     'border-red-500': formik.touched.depth && formik.errors.depth,
-//                   }
-//                 )}
-//               >
-//                 <option value="5">5 cm</option>
-//                 <option value="10">10 cm</option>
-//                 <option value="20">20 cm</option>
-//                 <option value="30">30 cm</option>
-//                 <option value="50">50 cm</option>
-//               </select>
-//               {formik.touched.depth && formik.errors.depth && (
-//                 <div className="text-red-500 text-sm mt-1 flex items-start">
-//                   <AlertCircle className="h-4 w-4 mr-1 mt-0.5 flex-shrink-0" />
-//                   <span>{formik.errors.depth}</span>
-//                 </div>
-//               )}
-//             </div>
-
-//             <div className="space-y-2">
-//               <Label htmlFor="w1">W₁</Label>
-//               <Input
-//                 id="w1"
-//                 name="w1"
-//                 value={formik.values.w1}
-//                 onChange={handleChange}
-//                 onBlur={formik.handleBlur}
-//                 className={cn({
-//                   'border-red-500': formik.touched.w1 && formik.errors.w1,
-//                 })}
-//               />
-//               {formik.touched.w1 && formik.errors.w1 && (
-//                 <div className="text-red-500 text-sm mt-1 flex items-start">
-//                   <AlertCircle className="h-4 w-4 mr-1 mt-0.5 flex-shrink-0" />
-//                   <span>{formik.errors.w1}</span>
-//                 </div>
-//               )}
-//             </div>
-
-//             <div className="space-y-2">
-//               <Label htmlFor="w2">W₂</Label>
-//               <Input
-//                 id="w2"
-//                 name="w2"
-//                 value={formik.values.w2}
-//                 onChange={handleChange}
-//                 onBlur={formik.handleBlur}
-//                 className={cn({
-//                   'border-red-500': formik.touched.w2 && formik.errors.w2,
-//                 })}
-//               />
-//               {formik.touched.w2 && formik.errors.w2 && (
-//                 <div className="text-red-500 text-sm mt-1 flex items-start">
-//                   <AlertCircle className="h-4 w-4 mr-1 mt-0.5 flex-shrink-0" />
-//                   <span>{formik.errors.w2}</span>
-//                 </div>
-//               )}
-//             </div>
-
-//             <div className="space-y-2">
-//               <Label htmlFor="w3">W₃</Label>
-//               <Input
-//                 id="w3"
-//                 name="w3"
-//                 value={formik.values.w3}
-//                 onChange={handleChange}
-//                 onBlur={formik.handleBlur}
-//                 className={cn({
-//                   'border-red-500': formik.touched.w3 && formik.errors.w3,
-//                 })}
-//               />
-//               {formik.touched.w3 && formik.errors.w3 && (
-//                 <div className="text-red-500 text-sm mt-1 flex items-start">
-//                   <AlertCircle className="h-4 w-4 mr-1 mt-0.5 flex-shrink-0" />
-//                   <span>{formik.errors.w3}</span>
-//                 </div>
-//               )}
-//             </div>
-//           </CardContent>
-//         </Card>
-
-//         <Card className="border border-gray-200 shadow-sm">
-//           <div className="p-4 bg-gray-100">
-//             <h3 className="text-lg font-semibold">Calculated Values</h3>
-//           </div>
-//           <CardContent className="p-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-//             <div className="space-y-2">
-//               <Label>Ws</Label>
-//               <Input
-//                 value={formik.values.Ws}
-//                 readOnly
-//                 className="bg-gray-100"
-//               />
-//             </div>
-
-//             <div className="space-y-2">
-//               <Label>Ds</Label>
-//               <Input
-//                 value={formik.values.Ds}
-//                 readOnly
-//                 className="bg-gray-100"
-//               />
-//             </div>
-
-//             <div className="space-y-2">
-//               <Label>Sm</Label>
-//               <Input
-//                 value={formik.values.Sm}
-//                 readOnly
-//                 className="bg-gray-100"
-//               />
-//             </div>
-//           </CardContent>
-//         </Card>
-
-//         <div className="flex justify-end gap-4">
-//           <Button
-//             type="button"
-//             variant="outline"
-//             onClick={() => router.back()}
-//           >
-//             Cancel
-//           </Button>
-//           <Button
-//             type="submit"
-//             disabled={isSubmitting}
-//           >
-//             {isSubmitting ? 'Submitting...' : 'Submit Data'}
-//           </Button>
-//         </div>
-//       </form>
-
-//       {/* Confirmation Modal */}
-//       <AnimatePresence>
-//         {showConfirmation && (
-//           <motion.div
-//             initial={{ opacity: 0 }}
-//             animate={{ opacity: 1 }}
-//             exit={{ opacity: 0 }}
-//             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-//           >
-//             <motion.div
-//               initial={{ scale: 0.9, y: 20 }}
-//               animate={{ scale: 1, y: 0 }}
-//               exit={{ scale: 0.9, y: 20 }}
-//               className="bg-white p-6 rounded-lg max-w-md w-full"
-//             >
-//               <h3 className="text-xl font-bold mb-4">Confirm Submission</h3>
-//               <p className="mb-6">Please verify that all data is correct before submitting.</p>
-
-//               <div className="mb-6 space-y-2">
-//                 <p><span className="font-semibold">Date:</span> {formik.values.date}</p>
-//                 <p><span className="font-semibold">Depth:</span> {formik.values.depth} cm</p>
-//                 <p><span className="font-semibold">W₁:</span> {formik.values.w1}</p>
-//                 <p><span className="font-semibold">W₂:</span> {formik.values.w2}</p>
-//                 <p><span className="font-semibold">W₃:</span> {formik.values.w3}</p>
-//               </div>
-
-//               <div className="flex justify-end gap-3">
-//                 <Button
-//                   variant="outline"
-//                   onClick={() => setShowConfirmation(false)}
-//                 >
-//                   Cancel
-//                 </Button>
-//                 <Button
-//                   onClick={() => {
-//                     setShowConfirmation(false);
-//                     formik.handleSubmit();
-//                   }}
-//                   disabled={isSubmitting}
-//                 >
-//                   {isSubmitting ? 'Submitting...' : 'Confirm'}
-//                 </Button>
-//               </div>
-//             </motion.div>
-//           </motion.div>
-//         )}
-//       </AnimatePresence>
-//     </div>
-//   );
-// }
-
-
 "use client";
 
 import * as Yup from "yup";
+import { motion } from "framer-motion";
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -402,11 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { AlertCircle, ChevronRight, ChevronLeft, MapPin, Calendar, Droplets } from "lucide-react";
+import { AlertCircle, ChevronRight, ChevronLeft, Layers } from "lucide-react";
 import { toast } from "sonner";
 import { useSession } from "@/lib/auth-client";
 import { useFormik } from "formik";
-import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 
 // Validation schema
@@ -459,35 +65,35 @@ export function SoilMoistureForm() {
     "5": {
       tab: "relative overflow-hidden",
       card: "bg-gradient-to-br from-violet-50 via-white to-purple-50 border-l-4 border-violet-400 shadow-xl shadow-violet-500/10",
-      icon: <Droplets className="size-5 mr-2 text-violet-600" />,
+      icon: <Layers className="size-5 mr-2 text-violet-600" />,
       header: "bg-gradient-to-r from-violet-500 to-purple-600 text-white",
       color: "violet",
     },
     "10": {
       tab: "relative overflow-hidden",
       card: "bg-gradient-to-br from-amber-50 via-white to-orange-50 border-l-4 border-amber-400 shadow-xl shadow-amber-500/10",
-      icon: <Droplets className="size-5 mr-2 text-amber-600" />,
+      icon: <Layers className="size-5 mr-2 text-amber-600" />,
       header: "bg-gradient-to-r from-amber-500 to-orange-500 text-white",
       color: "amber",
     },
     "20": {
       tab: "relative overflow-hidden",
       card: "bg-gradient-to-br from-rose-50 via-white to-pink-50 border-l-4 border-rose-400 shadow-xl shadow-rose-500/10",
-      icon: <Droplets className="size-5 mr-2 text-rose-600" />,
+      icon: <Layers className="size-5 mr-2 text-rose-600" />,
       header: "bg-gradient-to-r from-rose-500 to-pink-500 text-white",
       color: "rose",
     },
     "30": {
       tab: "relative overflow-hidden",
       card: "bg-gradient-to-br from-emerald-50 via-white to-teal-50 border-l-4 border-emerald-400 shadow-xl shadow-emerald-500/10",
-      icon: <Droplets className="size-5 mr-2 text-emerald-600" />,
+      icon: <Layers className="size-5 mr-2 text-emerald-600" />,
       header: "bg-gradient-to-r from-emerald-500 to-teal-500 text-white",
       color: "emerald",
     },
     "50": {
       tab: "relative overflow-hidden",
       card: "bg-gradient-to-br from-cyan-50 via-white to-blue-50 border-l-4 border-cyan-400 shadow-xl shadow-cyan-500/10",
-      icon: <Droplets className="size-5 mr-2 text-cyan-600" />,
+      icon: <Layers className="size-5 mr-2 text-cyan-600" />,
       header: "bg-gradient-to-r from-cyan-500 to-blue-500 text-white",
       color: "cyan",
     },
@@ -647,7 +253,7 @@ export function SoilMoistureForm() {
       <div className="container mx-auto max-w-7xl">
         <div className="mb-8 text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-violet-500 to-purple-600 rounded-full mb-4 shadow-lg">
-            <Droplets className="w-8 h-8 text-white" />
+            <Layers className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mb-2">
             Soil Moisture Data Collection
@@ -701,7 +307,7 @@ export function SoilMoistureForm() {
                               "scale-110": isActive,
                             })}
                           >
-                            <Droplets className="size-5 mr-2" />
+                            <Layers className="size-5 mr-2" />
                           </div>
                           <span className="text-base capitalize font-medium">{depth} cm</span>
                         </div>
@@ -769,7 +375,7 @@ export function SoilMoistureForm() {
                   <div className={cn("p-6", tabStyles[depth as keyof typeof tabStyles].header)}>
                     <div className="flex items-center justify-between">
                       <h3 className="text-xl font-bold flex items-center">
-                        <Droplets className="mr-3 w-6 h-6" /> Soil Moisture Data - {depth} cm Depth
+                        <Layers className="mr-3 w-6 h-6" /> Soil Moisture Data - {depth} cm Depth
                       </h3>
 
                       <div className="space-y-2 flex items-center justify-between">
