@@ -71,7 +71,7 @@ export interface AgroclimatologicalFormData {
   userId?: string
 }
 
-export function AgroclimatologicalFormComplete() {
+export function AgroclimatologicalForm() {
   const [activeTab, setActiveTab] = useState("station")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -238,7 +238,7 @@ export function AgroclimatologicalFormComplete() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 p-4">
       <div className="container mx-auto max-w-7xl">
-        <div className="mb-8 text-center">
+        {/* <div className="mb-8 text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-violet-500 to-purple-600 rounded-full mb-4 shadow-lg">
             <BarChart3 className="w-8 h-8 text-white" />
           </div>
@@ -247,7 +247,7 @@ export function AgroclimatologicalFormComplete() {
           </h1>
           <p className="text-lg text-slate-600 font-medium">Comprehensive Agroclimatological Data Entry System</p>
           <div className="w-24 h-1 bg-gradient-to-r from-violet-500 to-purple-600 mx-auto mt-4 rounded-full"></div>
-        </div>
+        </div> */}
 
         <motion.form
           initial={{ opacity: 0, y: 20 }}

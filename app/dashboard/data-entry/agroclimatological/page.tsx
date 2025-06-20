@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { AgroclimatologicalFormComplete } from "./agroclimatological-form";
+import { AgroclimatologicalForm } from "./agroclimatological-form";
 import SunshineTracker from "./SunshineTracker/sunshineTracker";
 import { SoilMoistureForm } from "./SoilMoistureForm/SoilMoistureForm";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -151,7 +151,7 @@ const AgroclimatologicalPage = () => {
                 <Card className="mx-8 my-6">
                   <SunshineTracker />
                 </Card>
-                <div className="flex justify-between px-8 pb-8">
+                {/* <div className="flex justify-between px-8 pb-8">
                   <Button
                     type="button"
                     variant="outline"
@@ -171,7 +171,7 @@ const AgroclimatologicalPage = () => {
                   >
                     Next <ChevronRight className="ml-2 h-5 w-5" />
                   </Button>
-                </div>
+                </div> */}
               </Card>
             </TabsContent>
 
@@ -186,11 +186,12 @@ const AgroclimatologicalPage = () => {
                 <Card className="mx-8 my-6">
                   <SoilMoistureForm />
                 </Card>
-                <div className="flex justify-between px-8 pb-8">
+                {/* <div className="flex justify-between px-8 pb-8">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={prevTab}
+                    disabled={activeTab === "soil"}
                     className="px-8 py-3 rounded-xl"
                   >
                     <ChevronLeft className="mr-2 h-5 w-5" /> Previous
@@ -205,7 +206,7 @@ const AgroclimatologicalPage = () => {
                   >
                     Next <ChevronRight className="ml-2 h-5 w-5" />
                   </Button>
-                </div>
+                </div> */}
               </Card>
             </TabsContent>
 
@@ -218,9 +219,9 @@ const AgroclimatologicalPage = () => {
                   </h3>
                 </div>
                 <Card className="mx-8 my-6">
-                  <AgroclimatologicalFormComplete />
+                  <AgroclimatologicalForm />
                 </Card>
-                <div className="flex justify-between px-8 pb-8">
+                {/* <div className="flex justify-between px-8 pb-8">
                   <Button
                     type="button"
                     variant="outline"
@@ -239,7 +240,7 @@ const AgroclimatologicalPage = () => {
                       Back to Start
                     </Button>
                   </div>
-                </div>
+                </div> */}
               </Card>
             </TabsContent>
           </Tabs>

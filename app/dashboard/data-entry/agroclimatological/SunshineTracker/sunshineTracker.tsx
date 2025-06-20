@@ -166,7 +166,7 @@ export default function SunshineTracker() {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-blue-50 p-4">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="text-center space-y-2">
+        {/* <div className="text-center space-y-2">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Sun className="h-8 w-8 text-orange-500" />
             <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-600 to-yellow-600 bg-clip-text text-transparent">
@@ -176,7 +176,7 @@ export default function SunshineTracker() {
           <p className="text-gray-600 text-lg">
             Daily sunshine duration monitoring system
           </p>
-        </div>
+        </div> */}
 
         <Tabs defaultValue="input" className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-6">

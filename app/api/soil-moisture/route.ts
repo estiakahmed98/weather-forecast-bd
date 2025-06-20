@@ -70,15 +70,15 @@ export async function GET() {
         stationId: session.user.station?.id,
       },
       orderBy: {
-        createdAt: 'desc',
+        date: 'desc',
       },
       select: {
-        createdAt: true,
+        date: true,
       },
     });
 
     return NextResponse.json(
-      { lastSubmission: lastSubmission?.createdAt || null },
+      { lastSubmission: lastSubmission?.date || null },
       { status: 200 }
     );
   } catch (error) {
