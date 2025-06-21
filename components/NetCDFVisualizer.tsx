@@ -310,6 +310,53 @@ export default function NetCDFVisualizer() {
     if (!selectedVariable || !ncData) return;
 
     const variable = ncData.variables[selectedVariable];
+    const dimensions = variable.dimensions;
+
+    // For 1D data
+    if (dimensions.length === 1) {
+      const headers = `${dimensions[0]},value`;
+      const rows = variable.data.map((value, index) => `${index},${value}`);
+      const csvContent = [headers, ...rows].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      saveAs(blob, `${selectedVariable}.txt`);
+      return;
+    }
+
+    // For 2D data
+    if (dimensions.length === 2) {
+      const dim1Size = ncData.metadata.dimensions[dimensions[0]] || Math.sqrt(variable.data.length);
+      const dim2Size = ncData.metadata.dimensions[dimensions[1]] || Math.sqrt(variable.data.length);
+
+      const headers = `${dimensions[0]},${dimensions[1]},value`;
+      const rows = [];
+
+      for (let i = 0; i < dim1Size; i++) {
+        for (let j = 0; j < dim2Size; j++) {
+          const index = i * dim2Size + j;
+          if (index < variable.data.length) {
+            rows.push(`${i},${j},${variable.data[index]}`);
+          }
+        }
+      }
+
+      const csvContent = [headers, ...rows].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      saveAs(blob, `${selectedVariable}.txt`);
+      return;
+    }
+
+    // For higher dimensions, fall back to simple index
+    const headers = 'index,value';
+    const rows = variable.data.map((value, index) => `${index},${value}`);
+    const csvContent = [headers, ...rows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    saveAs(blob, `${selectedVariable}.txt`);
+  };
+
+  const exportToJSON = () => {
+    if (!selectedVariable || !ncData) return;
+
+    const variable = ncData.variables[selectedVariable];
     const txtContent = JSON.stringify({
       variable: selectedVariable,
       dimensions: variable.dimensions,
@@ -318,7 +365,7 @@ export default function NetCDFVisualizer() {
     }, null, 2);
 
     const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8;' });
-    saveAs(blob, `${selectedVariable}.txt`);
+    saveAs(blob, `${selectedVariable}.json`);
   };
 
   return (
@@ -371,7 +418,7 @@ export default function NetCDFVisualizer() {
                 <CardTitle className="text-black">Export Data</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <Button
                     onClick={exportToCSV}
                     disabled={!selectedVariable}
@@ -387,6 +434,14 @@ export default function NetCDFVisualizer() {
                   >
                     <FileText className="h-4 w-4" />
                     Export to TXT
+                  </Button>
+                  <Button
+                    onClick={exportToJSON}
+                    disabled={!selectedVariable}
+                    className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white"
+                  >
+                    <FileText className="h-4 w-4" />
+                    Export to JSON
                   </Button>
                 </div>
               </CardContent>
