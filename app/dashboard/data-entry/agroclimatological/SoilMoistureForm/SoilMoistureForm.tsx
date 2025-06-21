@@ -232,25 +232,25 @@ export function SoilMoistureForm() {
     }
   };
 
-  if (!canSubmit && lastSubmission) {
-    const nextSubmissionDate = new Date(lastSubmission);
-    nextSubmissionDate.setDate(nextSubmissionDate.getDate() + 7);
+  // if (!canSubmit && lastSubmission) {
+  //   const nextSubmissionDate = new Date(lastSubmission);
+  //   nextSubmissionDate.setDate(nextSubmissionDate.getDate() + 7);
 
-    return (
-      <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-4 text-center">Submission Limit Reached</h2>
-        <p className="mb-4 text-center">
-          Soil moisture data can only be submitted once every 7 days.
-        </p>
-        <p className="text-center">
-          Your next submission will be available on: {' '}
-          <span className="font-semibold">
-            {nextSubmissionDate.toLocaleDateString()}
-          </span>
-        </p>
-      </div>
-    );
-  }
+  //   return (
+  //     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+  //       <h2 className="text-2xl font-bold mb-4 text-center">Submission Limit Reached</h2>
+  //       <p className="mb-4 text-center">
+  //         Soil moisture data can only be submitted once every 7 days.
+  //       </p>
+  //       <p className="text-center">
+  //         Your next submission will be available on: {' '}
+  //         <span className="font-semibold">
+  //           {nextSubmissionDate.toLocaleDateString()}
+  //         </span>
+  //       </p>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 p-4">
