@@ -87,7 +87,7 @@ const HourSelector = ({
                 <Circle className="size-5 stroke-1.5 text-slate-200" />
               )}
               00&nbsp;
-              <span className="text-muted-foreground text-sm">(12:00 AM)</span>
+              
             </SelectItem>
             <SelectItem value="03" className="text-lg">
               {hasTimeEntry("03") ? (
@@ -96,7 +96,7 @@ const HourSelector = ({
                 <Circle className="size-5 stroke-1.5 text-slate-200" />
               )}
               03&nbsp;
-              <span className="text-muted-foreground text-sm">(3:00 AM)</span>
+             
             </SelectItem>
             <SelectItem value="06" className="text-lg">
               {hasTimeEntry("06") ? (
@@ -105,7 +105,7 @@ const HourSelector = ({
                 <Circle className="size-5 stroke-1.5 text-slate-200" />
               )}
               06&nbsp;
-              <span className="text-muted-foreground text-sm">(6:00 AM)</span>
+             
             </SelectItem>
             <SelectItem value="09" className="text-lg">
               {hasTimeEntry("09") ? (
@@ -114,7 +114,7 @@ const HourSelector = ({
                 <Circle className="size-5 stroke-1.5 text-slate-200" />
               )}
               09&nbsp;
-              <span className="text-muted-foreground text-sm">(9:00 AM)</span>
+             
             </SelectItem>
             <SelectItem value="12" className="text-lg">
               {hasTimeEntry("12") ? (
@@ -123,7 +123,7 @@ const HourSelector = ({
                 <Circle className="size-5 stroke-1.5 text-slate-200" />
               )}
               12&nbsp;
-              <span className="text-muted-foreground text-sm">(12:00 PM)</span>
+            
             </SelectItem>
             <SelectItem value="15" className="text-lg">
               {hasTimeEntry("15") ? (
@@ -132,7 +132,7 @@ const HourSelector = ({
                 <Circle className="size-5 stroke-1.5 text-slate-200" />
               )}
               15&nbsp;
-              <span className="text-muted-foreground text-sm">(3:00 PM)</span>
+             
             </SelectItem>
             <SelectItem value="18" className="text-lg">
               {hasTimeEntry("18") ? (
@@ -141,7 +141,7 @@ const HourSelector = ({
                 <Circle className="size-5 stroke-1.5 text-slate-200" />
               )}
               18&nbsp;
-              <span className="text-muted-foreground text-sm">(6:00 PM)</span>
+              
             </SelectItem>
             <SelectItem value="21" className="text-lg">
               {hasTimeEntry("21") ? (
@@ -150,7 +150,7 @@ const HourSelector = ({
                 <Circle className="size-5 stroke-1.5 text-slate-200" />
               )}
               21&nbsp;
-              <span className="text-muted-foreground text-sm">(9:00 PM)</span>
+            
             </SelectItem>
           </SelectContent>
         </Select>
