@@ -886,7 +886,13 @@ export default function SecondCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
   // Check if current tab is the last one
   // const isLastTab = currentStep === totalSteps;
   const isFirstTab = currentStep === 1;
-
+// Utility function to truncate text
+const truncateText = (text, maxWords = 50) => {
+  if (!text) return '';
+  const words = text.split(' ');
+  if (words.length <= maxWords) return text;
+  return words.slice(0, maxWords).join(' ') + '...';
+};
   // Update the Tabs component to prevent direct tab navigation when current tab is invalid
   return (
     <>
@@ -1070,6 +1076,7 @@ export default function SecondCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
                             renderError={(field) =>
                               renderErrorMessage(`clouds.medium.${field}`)
                             }
+                            
                           />
                           <CloudLevelSection
                             title="High Cloud"
@@ -1923,14 +1930,15 @@ function CloudLevelSection({
   renderError,
 }: {
   title: string;
-  prefix: string;
+  prefix: "low-cloud" | "medium-cloud" | "high-cloud" | string;
   color?: string;
   data: Record<string, string>;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSelectChange: (name: string, value: string) => void;
   renderError: (field: string) => React.ReactNode;
 }) {
-  const cloudFormOptions = [
+  // ---------- FORM OPTIONS (separated by cloud level) ----------
+  const lowCloudFormOptions = [
     { value: "0", label: "0 - No Sc, St, Cu or Cb" },
     { value: "1", label: "1 - Cu with little vertical extent" },
     { value: "2", label: "2 - Cu of moderate/strong vertical extent" },
@@ -1938,23 +1946,98 @@ function CloudLevelSection({
     { value: "4", label: "4 - Sc formed from spreading Cu" },
     { value: "5", label: "5 - Sc not from spreading Cu" },
     { value: "6", label: "6 - St in continuous sheet or ragged shreds" },
-    { value: "7", label: "7 - Stratus fractus or Cu fractus of bad weather" },
+    { value: "7", label: "7 - Stratus/Cu fractus of bad weather" },
     { value: "8", label: "8 - Cu and Sc at different levels" },
-    { value: "9", label: "9 - Cb with fibrous upper part/anvil" },
+    { value: "9", label: "9 - Cb with fibrous upper part / anvil" },
     { value: "/", label: "/ - Not visible" },
   ];
 
+  // MIDDLE CLOUD (Ac/As/Ns) — taken from the table in your image
+  const mediumCloudFormOptions = [
+    { value: "0", label: "0 - No Ac, As or Ns" },
+    {
+      value: "1",
+      label:
+        "1 - Altostratus translucidus (semi-transparent; sun/moon weakly visible)",
+    },
+    {
+      value: "2",
+      label:
+        "2 - As, the greater part of which is sufficiently dense to hide the sun or moon, or Ns.",
+    },
+    {
+      value: "3",
+      label:
+        "3 - Ac, the greater part of which is semi-transparent; the various elements of the cloud change only slowly and are all at a single level.",
+    },
+    {
+      value: "4",
+      label:
+        "4 - Patches (often in the form of almonds or fishes) of Ac, the greater part of which is semi-transparent; the clouds occur at one or more levels and the elements are continually changing in appearance.",
+    },
+    {
+      value: "5",
+      label:
+        "5 - Semi-transparent Ac in bands, or Ac in one or more fairly continuous layers (semi-transparent or opaque) progressively invading the sky; these Ac clouds generally thicken as a whole.",
+    },
+    {
+      value: "6",
+      label: "6 - Ac resulting from the spreading out of Cu (or Cb).",
+    },
+    {
+      value: "7",
+      label:
+        "7 - Ac in two or more layers, usually opaque in places, and not progressively invading the sky; or opaque layer of Ac together with As or Ns.",
+    },
+    {
+      value: "8",
+      label:
+        "8 - Ac with sproutings in the form of small towers or battlements, or Ac having the appearance of cumuliform tufts.",
+    },
+    {
+      value: "9",
+      label: "9 - Ac of a chaotic sky, generally at several levels.",
+    },
+    {
+      value: "/",
+      label:
+        "/ - Ac, As, and Ns invisible owing to darkness, fog, blowing dust or sand, or other similar phenomena, or more often because of the presence of a continuous layer of lower clouds.",
+    },
+  ];
+
+  const highCloudFormOptions = [
+    { value: "0", label: "0 - No Ci, Cc, or Cs." },
+    { value: "1", label: "1 - Ci in the form of filaments, strands, or hooks, not progressively invading the sky." },
+    { value: "2", label: "2 - Dense Ci, often in patches or entangled sheaves, which usually do not increase and sometimes seem to be the remains of the upper part of a Cb; or Ci with sproutings in the form of small towers or battlements, or Ci having the appearance of cumuliform tufts." },
+    { value: "3", label: "3 - Dense Ci, often in the form of an anvil, being the remains of the upper parts of Cb." },
+    { value: "4", label: "4 - Ci in the form of hooks or of filaments, or both, progressively invading the sky, generally becoming denser as a whole." },
+    { value: "5", label: "5 - Ci (often in bands converging towards one point or two opposite points of the horizon) and Cs, or Cs alone; in either case, they are progressively invading the sky, and generally growing denser as a whole, but the continuous veil does not reach 45 degrees above the horizon." },
+    { value: "6", label: "6 - Ci (often in bands converging towards one point or two opposite points of the horizon) and Cs, or Cs alone; in either case, they are progressively invading the sky, and generally growing denser as a whole; the continuous veil extends more than 45 degrees above the horizon, without the sky being totally covered." },
+    { value: "7", label: "7 - Veil of Cs covering the celestial dome." },
+    { value: "8", label: "8 - Cs not progressively invading the sky and not completely covering the celestial dome." },
+    { value: "9", label: "9 - Cc alone, or Cc accompanied by Ci or Cs, or both, but Cc is predominant." },
+    { value: "/", label: "/ - Ci, Cc, and Cs invisible owing to darkness, fog, blowing dust or sand, or other similar phenomena, or more often because of the presence of a continuous layer of lower clouds." },
+  ];
+
+  const getFormOptions = () => {
+    if (prefix === "medium-cloud") return mediumCloudFormOptions;
+    if (prefix === "high-cloud") return highCloudFormOptions;
+    return lowCloudFormOptions; 
+    
+  };
+
+  // ---------- OTHER OPTION SETS (shared) ----------
   const cloudDirectionOptions = [
-    { value: "0", label: "0 - Stationary or no direction" },
-    { value: "1", label: "1 - Cloud coming from NE" },
-    { value: "2", label: "2 - Cloud coming from E" },
-    { value: "3", label: "3 - Cloud coming from SE" },
-    { value: "4", label: "4 - Cloud coming from S" },
-    { value: "5", label: "5 - Cloud coming from SW" },
-    { value: "6", label: "6 - Cloud coming from W" },
-    { value: "7", label: "7 - Cloud coming from NW" },
-    { value: "8", label: "8 - Cloud coming from N" },
-    { value: "9", label: "9 - No definite direction or direction unknown" },
+    { value: "0", label: "0 - Stationary / no direction" },
+    { value: "1", label: "1 - From NE" },
+    { value: "2", label: "2 - From E" },
+    { value: "3", label: "3 - From SE" },
+    { value: "4", label: "4 - From S" },
+    { value: "5", label: "5 - From SW" },
+    { value: "6", label: "6 - From W" },
+    { value: "7", label: "7 - From NW" },
+    { value: "8", label: "8 - From N" },
+    { value: "9", label: "9 - No definite / unknown" },
   ];
 
   const cloudHeightOptions = [
@@ -1967,36 +2050,32 @@ function CloudLevelSection({
     { value: "6", label: "6 - 1000 to 1500 m" },
     { value: "7", label: "7 - 1500 to 2000 m" },
     { value: "8", label: "8 - 2000 to 2500 m" },
-    { value: "9", label: "9 - 2500 m or more or no cloud" },
-    { value: "/", label: "/ - Height of base of cloud not known" },
+    { value: "9", label: "9 - 2500 m+ or no cloud" },
+    { value: "/", label: "/ - Height not known" },
   ];
 
   const cloudAmountOptions = [
     { value: "0", label: "0 - No cloud" },
-    { value: "1", label: "1 - 1 octa or less (1/10 or less but not zero)" },
-    { value: "2", label: "2 - 2 octas (2/10 to 3/10)" },
+    { value: "1", label: "1 - 1 octa or less" },
+    { value: "2", label: "2 - 2 octas (2/10–3/10)" },
     { value: "3", label: "3 - 3 octas (4/10)" },
     { value: "4", label: "4 - 4 octas (5/10)" },
     { value: "5", label: "5 - 5 octas (6/10)" },
-    { value: "6", label: "6 - 6 octas (7/10 to 8/10)" },
-    { value: "7", label: "7 - 7 octas (9/10 or more but not 10/10)" },
+    { value: "6", label: "6 - 6 octas (7/10–8/10)" },
+    { value: "7", label: "7 - 7 octas (≥9/10 but <10/10)" },
     { value: "8", label: "8 - 8 octas (10/10)" },
-    {
-      value: "9",
-      label: "9 - sky obscured or cloud amount cannot be estimated.",
-    },
-    {
-      value: "/",
-      label: "/ - Key obscured or cloud amount cannot be estimated",
-    },
+    { value: "9", label: "9 - Sky obscured / cannot be estimated" },
+    { value: "/", label: "/ - Obscured / cannot be estimated" },
   ];
+
+  const formOptions = getFormOptions();
 
   return (
     <div className="bg-gradient-to-r from-white to-gray-50 p-4 rounded-lg border border-gray-200">
-      <h3 className={`text-lg font-semibold mb-4 text-${color}-600`}>
-        {title}
-      </h3>
+      <h3 className={`text-lg font-semibold mb-4 text-${color}-600`}>{title}</h3>
+
       <div className="grid gap-4 md:grid-cols-2">
+        {/* FORM */}
         <SelectField
           id={`${prefix}-form`}
           name={`${prefix}-form`}
@@ -2004,12 +2083,15 @@ function CloudLevelSection({
           accent={color}
           value={data["form"] || ""}
           onValueChange={(value) => onSelectChange(`${prefix}-form`, value)}
-          options={cloudFormOptions.map((opt) => opt.value)}
-          optionLabels={cloudFormOptions.map((opt) => opt.label)}
+          options={formOptions.map((opt) => opt.value)}
+          optionLabels={formOptions.map((opt) =>
+          opt.label.length > 73 ? opt.label.slice(0, 73) + "..." : opt.label
+         )}
           error={renderError("form")}
           required
         />
 
+        {/* AMOUNT */}
         <SelectField
           id={`${prefix}-amount`}
           name={`${prefix}-amount`}
@@ -2023,6 +2105,7 @@ function CloudLevelSection({
           required
         />
 
+        {/* HEIGHT — hidden for high cloud */}
         {prefix !== "high-cloud" && (
           <SelectField
             id={`${prefix}-height`}
@@ -2038,6 +2121,7 @@ function CloudLevelSection({
           />
         )}
 
+        {/* DIRECTION */}
         <SelectField
           id={`${prefix}-direction`}
           name={`${prefix}-direction`}
@@ -2056,6 +2140,7 @@ function CloudLevelSection({
     </div>
   );
 }
+
 
 function SignificantCloudSection({
   title,
