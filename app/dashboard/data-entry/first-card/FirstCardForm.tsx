@@ -753,186 +753,200 @@ export function FirstCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
   };
 
   // Add this function after the handleChange function
-  const handleNumericInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+  // ✅ Drop-in replacement: shows error if rule is violated (no silent clamp)
+// Rule: Tmin ≤ Dry-bulb ≤ Tmax
+const handleNumericInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const { name, value } = e.target;
 
-    // Only allow numeric input
-    if (!/^\d*$/.test(value)) {
-      return;
+  // কেবল ডিজিট—(0-9)। নেগেটিভ/ডেসিমাল প্রয়োজন হলে রেজেক্স বদলান।
+  if (!/^\d*$/.test(value)) {
+    return;
+  }
+
+  // ===== helpers =====
+  const is3 = (s?: string) => !!s && s.length === 3;
+  const toN = (s?: string) => (is3(s) ? Number(s) : undefined);
+
+  // checkMinMax → "Minimum" / "Maximum" / falsy
+  const mode = checkMinMax(selectedHour);
+  const isMinMode = (mode || "").toLowerCase().includes("min");
+  const isMaxMode = (mode || "").toLowerCase().includes("max");
+
+  // রুল চেকার (side: 'as' | 'corr')
+  const violatesRule = (side: "as" | "corr", nextVal: string) => {
+    const dryStr = side === "as" ? formik.values.dryBulbAsRead : formik.values.dryBulbCorrected;
+    if (!is3(dryStr) || !is3(nextVal) || (!isMinMode && !isMaxMode)) return false;
+
+    const dry = Number(dryStr!);
+    const v = Number(nextVal);
+
+    if (isMinMode && v > dry) {
+      toast.error("Minimum temperature নিয়ম ভঙ্গ হয়েছে", {
+        description: "Minimum Dry-bulb মানের চেয়ে বড় হতে পারবে না (Tmin ≤ Dry-bulb).",
+        duration: 3500,
+      });
+      return true;
     }
+    if (isMaxMode && v < dry) {
+      toast.error("Maximum temperature নিয়ম ভঙ্গ হয়েছে", {
+        description: "Maximum Dry-bulb মানের চেয়ে ছোট হতে পারবে না (Dry-bulb ≤ Tmax).",
+        duration: 3500,
+      });
+      return true;
+    }
+    return false;
+  };
 
-    // Apply specific validation based on field type
-    switch (name) {
-      case "dryBulbAsRead":
-      case "wetBulbAsRead":
-      case "maxMinTempAsRead":
-        // Limit to 3 digits for temperature fields
-        if (value.length <= 3) {
-          formik.setFieldValue(name, value);
+  // ===== ফিল্ডভিত্তিক হ্যান্ডলিং =====
+  switch (name) {
+    case "dryBulbAsRead":
+    case "wetBulbAsRead":
+    case "maxMinTempAsRead": {
+      // টেম্প ফিল্ড 3 ডিজিটে সীমাবদ্ধ
+      if (value.length <= 3) {
+        // ইউজার max/min টাইপ করছে → আগে রুল চেক
+        if (name === "maxMinTempAsRead") {
+          if (violatesRule("as", value)) return; // ❌ invalid → সেট করব না
+        }
 
-          // ✅ Real-time BMD validation for temperature
-          if (name === "dryBulbAsRead" || name === "wetBulbAsRead") {
-            const dryBulb =
-              name === "dryBulbAsRead" ? value : formik.values.dryBulbAsRead;
-            const wetBulb =
-              name === "wetBulbAsRead" ? value : formik.values.wetBulbAsRead;
+        formik.setFieldValue(name, value);
 
-            if (
-              dryBulb &&
-              wetBulb &&
-              dryBulb.length === 3 &&
-              wetBulb.length === 3
-            ) {
-              const validation = validateTemperatureInputs(dryBulb, wetBulb);
-              if (!validation.isValid) {
-                toast.error(validation.message, {
-                  description: "অনুগ্রহ করে সঠিক তাপমাত্রা প্রবেশ করান।",
-                  duration: 4000,
-                });
-                return; // Don't proceed with calculation
-              }
+        // BMD ভ্যালিডেশন (আগের মতোই)
+        if (name === "dryBulbAsRead" || name === "wetBulbAsRead") {
+          const dryBulb = name === "dryBulbAsRead" ? value : formik.values.dryBulbAsRead;
+          const wetBulb = name === "wetBulbAsRead" ? value : formik.values.wetBulbAsRead;
+
+          if (is3(dryBulb) && is3(wetBulb)) {
+            const validation = validateTemperatureInputs(dryBulb!, wetBulb!);
+            if (!validation.isValid) {
+              toast.error(validation.message, {
+                description: "অনুগ্রহ করে সঠিক তাপমাত্রা প্রবেশ করান।",
+                duration: 4000,
+              });
+              return;
             }
           }
         }
-        break;
 
-      case "barAsRead":
-      case "correctedForIndex":
-        // Limit to 5 digits for pressure fields
-        if (value.length <= 5) {
-          formik.setFieldValue(name, value);
+        // Dry-bulb পাল্টালে আগের max/min রুল ভাঙছে কি না—চেক (সেট করব না)
+        if (name === "dryBulbAsRead" && is3(value) && is3(formik.values.maxMinTempAsRead)) {
+          if (violatesRule("as", formik.values.maxMinTempAsRead!)) {
+            // চাইলে ক্লিয়ার করে দিতে পারেন:
+            // formik.setFieldValue("maxMinTempAsRead", "");
+          }
         }
-        break;
+      }
+      break;
+    }
 
-      case "horizontalVisibility":
-        // Limit to 3 digits for visibility
-        if (value.length <= 3) {
-          formik.setFieldValue(name, value);
-        }
-        break;
-
-      case "presentWeatherWW":
-        // Limit to 2 digits for present weather
-        if (value.length <= 2) {
-          formik.setFieldValue(name, value);
-        }
-        break;
-
-      default:
-        // For other numeric fields, just update the value
+    case "barAsRead":
+    case "correctedForIndex":
+      if (value.length <= 5) {
         formik.setFieldValue(name, value);
-    }
-
-    // Continue with other calculations as in the original handleChange
-    if (name === "dryBulbAsRead" || name === "wetBulbAsRead") {
-      const dryBulb =
-        name === "dryBulbAsRead" ? value : formik.values.dryBulbAsRead;
-      const wetBulb =
-        name === "wetBulbAsRead" ? value : formik.values.wetBulbAsRead;
-
-      if (dryBulb && wetBulb && dryBulb.length === 3 && wetBulb.length === 3) {
-        calculateDewPointAndHumidity(dryBulb, wetBulb);
       }
-    }
+      break;
 
-    // Add this after the dew point calculation section and replace the existing temperature correction code
-    if (
-      name === "dryBulbAsRead" ||
-      name === "wetBulbAsRead" ||
-      name === "maxMinTempAsRead"
-    ) {
-      // Auto-update corrected fields with the same values as as-read fields
-      if (name === "dryBulbAsRead") {
-        formik.setFieldValue("dryBulbCorrected", value);
+    case "horizontalVisibility":
+      if (value.length <= 3) {
+        formik.setFieldValue(name, value);
       }
-      if (name === "wetBulbAsRead") {
-        formik.setFieldValue("wetBulbCorrected", value);
+      break;
+
+    case "presentWeatherWW":
+      if (value.length <= 2) {
+        formik.setFieldValue(name, value);
       }
-      if (name === "maxMinTempAsRead") {
-        formik.setFieldValue("maxMinTempCorrected", value);
-      }
-    }
+      break;
 
-    // Station level + Sea level pressure calculation
-    if (name === "dryBulbAsRead" || name === "barAsRead") {
-      const dryBulb =
-        name === "dryBulbAsRead" ? value : formik.values.dryBulbAsRead;
-      const barAsRead = name === "barAsRead" ? value : formik.values.barAsRead;
-
-      if (dryBulb && barAsRead) {
-        const stationId = session?.user?.station?.stationId;
-
-        if (!stationId) {
-          toast.error("Station ID is missing");
-          return;
+    case "dryBulbCorrected":
+    case "wetBulbCorrected":
+    case "maxMinTempCorrected": {
+      if (value.length <= 3) {
+        if (name === "maxMinTempCorrected") {
+          if (violatesRule("corr", value)) return; // ❌ invalid → সেট করব না
         }
 
-        const pressureData = calculatePressureValues(
-          dryBulb,
-          barAsRead,
-          stationId
-        );
-        if (pressureData) {
-          formik.setFieldValue(
-            "stationLevelPressure",
-            pressureData.stationLevelPressure
-          );
-          formik.setFieldValue(
-            "heightDifference",
-            pressureData.heightDifference
-          );
+        formik.setFieldValue(name, value);
 
-          console.log(timeData);
-
-          // Get yesterday's station level pressure
-          const prevStationLevelPressure =
-            timeData?.yesterday?.meteorologicalEntry[0]?.stationLevelPressure;
-          console.log(
-            "Time Data: ",
-            timeData?.yesterday?.meteorologicalEntry[0]?.stationLevelPressure
-          );
-          // If there's no previous pressure data, set to '000' and return
-          if (!prevStationLevelPressure) {
-            formik.setFieldValue("pressureChange24h", "0000");
-          } else {
-            // Use the pressureData directly since we just set it
-            const currentPressureStr = pressureData.stationLevelPressure;
-
-            // Convert to numbers
-            const prevPressure = Number(prevStationLevelPressure);
-            const currentPressure = Number(currentPressureStr);
-
-            // Calculate the difference
-            const pressureChange = prevPressure - currentPressure;
-
-            // Format with sign and leading zeros (always 4 chars total: sign + 3 digits)
-            const sign = pressureChange > 0 ? "+" : "-";
-            const absValue = Math.abs(pressureChange);
-            const paddedNumber = String(absValue).padStart(4, "0");
-            const formattedValue = `${sign}${paddedNumber}`;
-
-            formik.setFieldValue("pressureChange24h", formattedValue);
-          }
-
-          const seaData = calculateSeaLevelPressure(
-            dryBulb,
-            pressureData.stationLevelPressure,
-            stationId
-          );
-          if (seaData) {
-            formik.setFieldValue(
-              "seaLevelReduction",
-              seaData.seaLevelReduction
-            );
-            formik.setFieldValue(
-              "correctedSeaLevelPressure",
-              seaData.correctedSeaLevelPressure
-            );
+        // Corrected dry-bulb বদলালে—অতীতের max/min valid কি না
+        if (name === "dryBulbCorrected" && is3(value) && is3(formik.values.maxMinTempCorrected)) {
+          if (violatesRule("corr", formik.values.maxMinTempCorrected!)) {
+            // formik.setFieldValue("maxMinTempCorrected", "");
           }
         }
       }
+      break;
     }
-  };
+
+    default:
+      formik.setFieldValue(name, value);
+  }
+
+  // ===== dew point calc (আগের মতোই) =====
+  if (name === "dryBulbAsRead" || name === "wetBulbAsRead") {
+    const dryBulb = name === "dryBulbAsRead" ? value : formik.values.dryBulbAsRead;
+    const wetBulb = name === "wetBulbAsRead" ? value : formik.values.wetBulbAsRead;
+
+    if (is3(dryBulb) && is3(wetBulb)) {
+      calculateDewPointAndHumidity(dryBulb!, wetBulb!);
+    }
+  }
+
+  // ===== as-read → corrected copy (আপনার আগের মতোই) =====
+  if (name === "dryBulbAsRead" || name === "wetBulbAsRead" || name === "maxMinTempAsRead") {
+    if (name === "dryBulbAsRead") {
+      formik.setFieldValue("dryBulbCorrected", value);
+    }
+    if (name === "wetBulbAsRead") {
+      formik.setFieldValue("wetBulbCorrected", value);
+    }
+    if (name === "maxMinTempAsRead") {
+      // এখানে ভায়োলেশন হলে আগেই return করেছে, তাই এটা সেফ
+      formik.setFieldValue("maxMinTempCorrected", value);
+    }
+  }
+
+  // ===== pressure calc (আগের মতোই) =====
+  if (name === "dryBulbAsRead" || name === "barAsRead") {
+    const dryBulb = name === "dryBulbAsRead" ? value : formik.values.dryBulbAsRead;
+    const barAsRead = name === "barAsRead" ? value : formik.values.barAsRead;
+
+    if (dryBulb && barAsRead) {
+      const stationId = session?.user?.station?.stationId;
+      if (!stationId) {
+        toast.error("Station ID is missing");
+        return;
+      }
+
+      const pressureData = calculatePressureValues(dryBulb, barAsRead, stationId);
+      if (pressureData) {
+        formik.setFieldValue("stationLevelPressure", pressureData.stationLevelPressure);
+        formik.setFieldValue("heightDifference", pressureData.heightDifference);
+
+        const prev = timeData?.yesterday?.meteorologicalEntry?.[0]?.stationLevelPressure;
+        if (!prev) {
+          formik.setFieldValue("pressureChange24h", "0000");
+        } else {
+          const prevN = Number(prev);
+          const curN = Number(pressureData.stationLevelPressure);
+          const diff = prevN - curN;
+          const abs = Math.abs(diff);
+          const padded = String(abs).padStart(4, "0");
+          const sign = diff > 0 ? "+":
+          formik.setFieldValue("pressureChange24h", `${sign ?? "-"}${padded}`);
+        }
+
+        const seaData = calculateSeaLevelPressure(dryBulb, pressureData.stationLevelPressure, stationId);
+        if (seaData) {
+          formik.setFieldValue("seaLevelReduction", seaData.seaLevelReduction);
+          formik.setFieldValue("correctedSeaLevelPressure", seaData.correctedSeaLevelPressure);
+        }
+      }
+    }
+  }
+};
+
+
 
   // Reset form function
   const handleReset = () => {
