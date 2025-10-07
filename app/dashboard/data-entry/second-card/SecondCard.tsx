@@ -217,11 +217,14 @@ const totalCloudSchema = Yup.object({
 const significantCloudSchema = Yup.object({
   significantClouds: Yup.object({
     layer1: Yup.object({
-      form: Yup.string().required("Layer 1 form is required"),
-      amount: Yup.string().required("Layer 1 amount is required"),
-      height: Yup.string()
-        .required("Layer 1 height is required")
-        .matches(/^[0-9]+$/, "Please enter numbers only"),
+      // form: Yup.string().required("Layer 1 form is required"),
+      // amount: Yup.string().required("Layer 1 amount is required"),
+      // height: Yup.string()
+      //   .required("Layer 1 height is required")
+      //   .matches(/^[0-9]+$/, "Please enter numbers only"),
+       form: Yup.string(),
+      amount: Yup.string(),
+      height: Yup.string().matches(/^[0-9]*$/, "Please enter numbers only"),
     }),
     layer2: Yup.object({
       form: Yup.string(),
@@ -2186,32 +2189,37 @@ function SignificantCloudSection({
     { value: "6", label: "6 - 6 octas (7/10 to 8/10)" },
     { value: "7", label: "7 - 7 octas (9/10 or more but not 10/10)" },
     { value: "8", label: "8 - 8 octas (10/10)" },
-    {
-      value: "/",
-      label: "/ - Key obscured or cloud amount cannot be estimated",
-    },
+    { value: "/", label: "/ - Key obscured or cloud amount cannot be estimated" },
   ];
 
-  // Determine if this is the first layer (required) or other layers (optional)
-  const isRequired = prefix === "layer1";
+  // ✅ Radix-safe deselect sentinel ("" ব্যবহার করলে এরর হয়)
+  const NONE = { value: "__NONE__", label: "— Deselect —" };
+  const mapValue = (v: string) => (v === "__NONE__" ? "" : v);
+
+  // prepend deselect option
+  const formValues = [NONE, ...cloudFormOptions].map(o => ("value" in o ? o.value : o));
+  const formLabels = [NONE, ...cloudFormOptions].map(o => ("label" in o ? o.label : String(o)));
+
+  const amountValues = [NONE, ...SigcloudAmountOptions].map(o => ("value" in o ? o.value : o));
+  const amountLabels = [NONE, ...SigcloudAmountOptions].map(o => ("label" in o ? o.label : String(o)));
+
+  // heightOptions আগে কেবল string ছিল, এখানে sentinel prepend
+  const heightValues = ["__NONE__", ...heightOptions];
 
   return (
     <div className="bg-gradient-to-r from-white to-gray-50 p-4 rounded-lg border border-gray-200">
-      <h3 className={`text-lg font-semibold mb-4 text-${color}-600`}>
-        {title}
-      </h3>
+      <h3 className={`text-lg font-semibold mb-4 text-${color}-600`}>{title}</h3>
       <div className="grid gap-4 md:grid-cols-2">
         <SelectField
           id={`${prefix}-form`}
           name={`${prefix}-form`}
           label="Form (Code)"
           accent={color}
-          value={data["form"] || ""}
-          onValueChange={(value) => onSelectChange(`${prefix}-form`, value)}
-          options={cloudFormOptions.map((opt) => opt.value)}
-          optionLabels={cloudFormOptions.map((opt) => opt.label)}
+          value={data["form"] || ""} // "" থাকলে placeholder দেখাবে
+          onValueChange={(value) => onSelectChange(`${prefix}-form`, mapValue(value))}
+          options={formValues}
+          optionLabels={formLabels}
           error={renderError("form")}
-          required={isRequired}
         />
         <SelectField
           id={`${prefix}-amount`}
@@ -2219,11 +2227,10 @@ function SignificantCloudSection({
           label="Amount (Octa)"
           accent={color}
           value={data["amount"] || ""}
-          onValueChange={(value) => onSelectChange(`${prefix}-amount`, value)}
-          options={SigcloudAmountOptions.map((opt) => opt.value)}
-          optionLabels={SigcloudAmountOptions.map((opt) => opt.label)}
+          onValueChange={(value) => onSelectChange(`${prefix}-amount`, mapValue(value))}
+          options={amountValues}
+          optionLabels={amountLabels}
           error={renderError("amount")}
-          required={isRequired}
         />
         <SelectField
           id={`${prefix}-height`}
@@ -2231,12 +2238,12 @@ function SignificantCloudSection({
           label="Height of Base (Code)"
           accent={color}
           value={data["height"] || ""}
-          onValueChange={(value) => onSelectChange(`${prefix}-height`, value)}
-          options={heightOptions}
+          onValueChange={(value) => onSelectChange(`${prefix}-height`, mapValue(value))}
+          options={heightValues}
           error={renderError("height")}
-          required={isRequired}
         />
       </div>
     </div>
   );
 }
+
