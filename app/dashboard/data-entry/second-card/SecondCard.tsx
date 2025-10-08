@@ -13,6 +13,7 @@ import {
   AlertCircle,
   ChevronLeft,
   ChevronRight,
+  BarChart3,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -266,7 +267,7 @@ export default function SecondCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("cloud");
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 6; // cloud, n, significant-cloud, rainfall, wind, observer
+  const totalSteps = 7; // cloud, n, significant-cloud, rainfall, wind, observer, summary
   const { data: session } = useSession();
 
   const {
@@ -335,6 +336,15 @@ export default function SecondCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
       originalTab:
         "border border-orange-500 px-4 py-3 !bg-orange-50 text-orange-800 hover:opacity-90 shadow-sm shadow-orange-500/50",
       card: "bg-gradient-to-br from-orange-50 to-white border-l-4 border-orange-200 shadow-sm",
+    },
+    summary: {
+      tab: "from-slate-500 to-slate-600",
+      icon: <BarChart3 className="w-4 h-4" />,
+      iconColor: "text-slate-600",
+      iconBg: "from-slate-100 to-slate-50",
+      originalTab:
+        "border border-slate-500 px-4 py-3 !bg-slate-50 text-slate-800 hover:opacity-90 shadow-sm shadow-slate-500/50",
+      card: "bg-gradient-to-br from-slate-50 to-white border-l-4 border-slate-200 shadow-sm",
     },
   };
 
@@ -605,6 +615,7 @@ export default function SecondCardForm({ timeInfo }: { timeInfo: TimeInfo[] }) {
       "rainfall",
       "wind",
       "observer",
+      "summary",
     ];
     return steps[step - 1] || "cloud";
   };
@@ -1699,7 +1710,6 @@ const truncateText = (text, maxWords = 50) => {
                           <ChevronLeft className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />{" "}
                           Previous
                         </Button>
-
                         <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto">
                           <Button
                             type="button"
@@ -1709,7 +1719,346 @@ const truncateText = (text, maxWords = 50) => {
                           >
                             Reset
                           </Button>
+                          <Button
+                            type="button"
+                            onClick={handleNext}
+                            className="bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm w-full sm:w-auto"
+                          >
+                            Next <ChevronRight className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
+                          </Button>
+                        </div>
+                      </CardFooter>
+                    </Card>
+                  </TabsContent>
 
+                  {/* SUMMARY Tab */}
+                  <TabsContent
+                    value="summary"
+                    className="mt-4 sm:mt-6 transition-all duration-500"
+                  >
+                    <Card className={cn("overflow-hidden", tabStyles.summary.card)}>
+                      <div className="p-3 sm:p-4 bg-gradient-to-r from-slate-200 to-slate-300 text-slate-800">
+                        <h3 className="text-base sm:text-lg font-semibold flex items-center">
+                          <BarChart3 className="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> Summary & Review
+                        </h3>
+                      </div>
+                      <CardContent className="pt-4 sm:pt-6 space-y-6">
+                        {/* Cloud Section */}
+                        <SectionCard
+                          title="Cloud Observation"
+                          icon={<CloudIcon className="h-5 w-5 text-blue-500" />}
+                          className="border-blue-200"
+                        >
+                          <div className="space-y-6">
+                            <CloudLevelSection
+                              title="Low Cloud"
+                              prefix="low-cloud"
+                              color="blue"
+                              data={formik.values.clouds.low}
+                              onChange={handleInputChange}
+                              onSelectChange={handleSelectChange}
+                              renderError={(field) => renderErrorMessage(`clouds.low.${field}`)}
+                            />
+                            <CloudLevelSection
+                              title="Medium Cloud"
+                              prefix="medium-cloud"
+                              color="purple"
+                              data={formik.values.clouds.medium}
+                              onChange={handleInputChange}
+                              onSelectChange={handleSelectChange}
+                              renderError={(field) => renderErrorMessage(`clouds.medium.${field}`)}
+                            />
+                            <CloudLevelSection
+                              title="High Cloud"
+                              prefix="high-cloud"
+                              color="cyan"
+                              data={formik.values.clouds.high}
+                              onChange={handleInputChange}
+                              onSelectChange={handleSelectChange}
+                              renderError={(field) => renderErrorMessage(`clouds.high.${field}`)}
+                            />
+                          </div>
+                        </SectionCard>
+
+                        {/* Total Cloud */}
+                        <SectionCard
+                          title="Total Cloud Amount"
+                          icon={<Sun className="h-5 w-5 text-yellow-500" />}
+                          className="border-yellow-200"
+                        >
+                          <div className="grid gap-4 sm:gap-6">
+                            <SelectField
+                              id="summary-total-cloud-amount"
+                              name="total-cloud-amount"
+                              label="Total Cloud Amount (Octa)"
+                              accent="yellow"
+                              value={formik.values.totalCloud["total-cloud-amount"] || ""}
+                              onValueChange={(value) => handleSelectChange("total-cloud-amount", value)}
+                              options={cloudAmountOptions.map((opt) => opt.value)}
+                              optionLabels={cloudAmountOptions.map((opt) => opt.label)}
+                              error={renderErrorMessage("totalCloud.total-cloud-amount")}
+                              required
+                            />
+                          </div>
+                        </SectionCard>
+
+                        {/* Significant Clouds */}
+                        <SectionCard
+                          title="Significant Clouds"
+                          icon={<CloudIcon className="h-5 w-5 text-purple-500" />}
+                          className="border-purple-200"
+                        >
+                          <div className="space-y-6">
+                            <SignificantCloudSection
+                              title="1st Layer"
+                              prefix="layer1"
+                              color="purple"
+                              data={formik.values.significantClouds.layer1}
+                              onSelectChange={handleSelectChange}
+                              renderError={(field) => renderErrorMessage(`significantClouds.layer1.${field}`)}
+                            />
+                            <SignificantCloudSection
+                              title="2nd Layer"
+                              prefix="layer2"
+                              color="fuchsia"
+                              data={formik.values.significantClouds.layer2}
+                              onSelectChange={handleSelectChange}
+                              renderError={(field) => renderErrorMessage(`significantClouds.layer2.${field}`)}
+                            />
+                            <SignificantCloudSection
+                              title="3rd Layer"
+                              prefix="layer3"
+                              color="violet"
+                              data={formik.values.significantClouds.layer3}
+                              onSelectChange={handleSelectChange}
+                              renderError={(field) => renderErrorMessage(`significantClouds.layer3.${field}`)}
+                            />
+                            <SignificantCloudSection
+                              title="4th Layer"
+                              prefix="layer4"
+                              color="indigo"
+                              data={formik.values.significantClouds.layer4}
+                              onSelectChange={handleSelectChange}
+                              renderError={(field) => renderErrorMessage(`significantClouds.layer4.${field}`)}
+                            />
+                          </div>
+                        </SectionCard>
+
+                        {/* Rainfall */}
+                        <SectionCard
+                          title="Rainfall"
+                          icon={<CloudRainIcon className="h-5 w-5 text-cyan-500" />}
+                          className="border-cyan-200"
+                        >
+                          <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
+                            <div className="grid gap-2">
+                              <Label htmlFor="summary-date-start" className="font-medium text-gray-700 text-xs sm:text-sm">
+                                Time of Start (HH:MM UTC) <span className="text-red-500">*</span>
+                              </Label>
+                              <div className="grid grid-cols-2 gap-2">
+                                <Input
+                                  id="summary-date-start"
+                                  name="date-start"
+                                  type="date"
+                                  value={formik.values.rainfall["date-start"] || ""}
+                                  onChange={handleInputChange}
+                                  className="text-xs sm:text-sm"
+                                  required
+                                />
+                                <Input
+                                  id="summary-time-start"
+                                  name="time-start"
+                                  type="text"
+                                  placeholder="HH:MM"
+                                  value={formik.values.rainfall["time-start"] || ""}
+                                  onChange={handleInputChange}
+                                  className="text-xs sm:text-sm"
+                                  required
+                                />
+                              </div>
+                              {renderErrorMessage("rainfall.time-start")}
+                            </div>
+
+                            <div className="grid gap-2">
+                              <Label htmlFor="summary-time-end" className="font-medium text-gray-700 text-xs sm:text-sm">
+                                Time of Ending (HH:MM UTC) <span className="text-red-500">*</span>
+                              </Label>
+                              <div className="grid grid-cols-2 gap-2">
+                                <Input
+                                  id="summary-date-end"
+                                  name="date-end"
+                                  type="date"
+                                  value={formik.values.rainfall["date-end"] || ""}
+                                  onChange={handleInputChange}
+                                  className="text-xs sm:text-sm"
+                                  required
+                                />
+                                <Input
+                                  id="summary-time-end"
+                                  name="time-end"
+                                  type="text"
+                                  placeholder="HH:MM"
+                                  value={formik.values.rainfall["time-end"] || ""}
+                                  onChange={handleInputChange}
+                                  className="text-xs sm:text-sm"
+                                  required
+                                />
+                              </div>
+                              {renderErrorMessage("rainfall.time-end")}
+                            </div>
+
+                            <InputField
+                              id="summary-since-previous"
+                              name="since-previous"
+                              label="Since Previous Observation"
+                              accent="cyan"
+                              value={formik.values.rainfall["since-previous"] || ""}
+                              onChange={handleInputChange}
+                              error={renderErrorMessage("rainfall.since-previous")}
+                              required
+                              numeric={true}
+                            />
+                            <InputField
+                              id="summary-during-previous"
+                              name="during-previous"
+                              label="During Previous 6 Hours Rainfall (At 00, 06, 12, 18 UTC)"
+                              accent="cyan"
+                              value={formik.values.rainfall["during-previous"] || ""}
+                              onChange={handleInputChange}
+                              error={renderErrorMessage("rainfall.during-previous")}
+                              required
+                            />
+                            <div className="md:col-span-2">
+                              <InputField
+                                id="summary-last-24-hours"
+                                name="last-24-hours"
+                                label="Last 24 Hours Precipitation"
+                                accent="cyan"
+                                value={formik.values.rainfall["last-24-hours"] || ""}
+                                onChange={handleInputChange}
+                                error={renderErrorMessage("rainfall.last-24-hours")}
+                                required
+                                numeric={true}
+                              />
+                            </div>
+
+                            <div className="md:col-span-2 flex items-center gap-2 mt-2 sm:mt-4">
+                              <input
+                                id="summary-is-intermittent-rain"
+                                name="isIntermittentRain"
+                                type="checkbox"
+                                checked={formik.values.rainfall?.isIntermittentRain || false}
+                                onChange={(e) => {
+                                  formik.setFieldValue("rainfall.isIntermittentRain", e.target.checked);
+                                }}
+                                className="h-4 w-4 sm:h-5 sm:w-5 text-cyan-600 border-gray-300 rounded focus:ring-cyan-500"
+                              />
+                              <Label htmlFor="summary-is-intermittent-rain" className="font-medium text-cyan-800 text-xs sm:text-sm">
+                                Intermittent Rain? (বিরতিযুক্ত বৃষ্টি)
+                              </Label>
+                            </div>
+                          </div>
+                        </SectionCard>
+
+                        {/* Wind */}
+                        <SectionCard
+                          title="Wind"
+                          icon={<Wind className="h-5 w-5 text-green-500" />}
+                          className="border-green-200"
+                        >
+                          <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
+                            <InputField
+                              id="summary-first-anemometer"
+                              name="first-anemometer"
+                              label="First Anenometer"
+                              accent="green"
+                              value={formik.values.wind?.["first-anemometer"] || ""}
+                              onChange={handleInputChange}
+                              error={renderErrorMessage("wind.first-anemometer")}
+                              required
+                            />
+                            <InputField
+                              id="summary-second-anemometer"
+                              name="second-anemometer"
+                              label="Second Anenometer"
+                              accent="green"
+                              value={formik.values.wind?.["second-anemometer"] || ""}
+                              onChange={handleInputChange}
+                              error={renderErrorMessage("wind.second-anemometer")}
+                              required
+                            />
+                            <InputField
+                              id="summary-speed"
+                              name="speed"
+                              label="Speed (KTS)"
+                              accent="green"
+                              value={formik.values.wind?.["speed"] || ""}
+                              onChange={handleInputChange}
+                              error={renderErrorMessage("wind.speed")}
+                              required
+                              numeric={true}
+                            />
+                            <InputField
+                              id="summary-wind-direction"
+                              name="wind-direction"
+                              label="Direction (Degrees)"
+                              accent="green"
+                              value={formik.values.wind?.["wind-direction"] || ""}
+                              onChange={handleInputChange}
+                              error={renderErrorMessage("wind.wind-direction")}
+                              required
+                              numeric={true}
+                            />
+                          </div>
+                        </SectionCard>
+
+                        {/* Observer */}
+                        <SectionCard
+                          title="Observer"
+                          icon={<User className="h-5 w-5 text-orange-500" />}
+                          className="border-orange-200"
+                        >
+                          <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
+                            <InputField
+                              id="summary-observer-initial"
+                              name="observer-initial"
+                              label="Observer Initials"
+                              accent="orange"
+                              value={formik.values.observer["observer-initial"] || ""}
+                              onChange={handleInputChange}
+                              error={renderErrorMessage("observer.observer-initial")}
+                              required
+                            />
+                            <InputField
+                              id="summary-station-id"
+                              name="station-id"
+                              label="Station ID"
+                              accent="orange"
+                              value={session?.user?.station?.stationId || ""}
+                              onChange={handleInputChange}
+                              disabled
+                            />
+                          </div>
+                        </SectionCard>
+                      </CardContent>
+                      <CardFooter className="flex flex-col sm:flex-row justify-between p-4 sm:p-6 gap-3 sm:gap-0">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handlePrevious}
+                          className="text-xs sm:text-sm w-full sm:w-auto flex justify-center items-center"
+                        >
+                          <ChevronLeft className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" /> Previous
+                        </Button>
+                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="border-slate-600 hover:bg-slate-100 transition-all duration-300 text-xs sm:text-sm w-full sm:w-auto"
+                            onClick={handleReset}
+                          >
+                            Reset
+                          </Button>
                           <Button
                             type="submit"
                             className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 shadow-sm text-xs sm:text-sm w-full sm:w-auto flex justify-center items-center"

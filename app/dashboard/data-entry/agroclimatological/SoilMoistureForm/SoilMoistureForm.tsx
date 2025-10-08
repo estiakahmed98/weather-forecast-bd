@@ -109,12 +109,15 @@ export function SoilMoistureForm() {
       const Ws = w2 - w1;
       const Ds = w3 - w1;
       const Sm = ((Ws - Ds) * 100) / Ds;
+      const SmRounded = Math.round(Sm); // standard rounding: >= .5 rounds up
+      const WsRounded = Math.round(Ws);
+      const DsRounded = Math.round(Ds);
 
       formik.setValues({
         ...formik.values,
-        Ws: Ws.toFixed(3),
-        Ds: Ds.toFixed(3),
-        Sm: Sm.toFixed(3),
+        Ws: WsRounded.toString(),
+        Ds: DsRounded.toString(),
+        Sm: SmRounded.toString(),
       });
     }
   }, [formik.values.w1, formik.values.w2, formik.values.w3]);
@@ -383,7 +386,7 @@ export function SoilMoistureForm() {
                       </h3>
 
                       <div className="space-y-2 flex items-center justify-between">
-                        <p className="text-slate-700 font-bold w-full text-white mb-0 mr-2">Select Date</p>
+                        <p className="font-bold w-full text-white mb-0 mr-2">Select Date</p>
                         <div className="relative w-full">
                           <Input
                             type="date"
